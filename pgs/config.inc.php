@@ -15,7 +15,7 @@ $VNStat      = array();
 
 $PageOptions['ContactEmail']                         = 'daniel@dvbr.net';	// Support E-Mail address
 
-$PageOptions['DashboardVersion']                     = '2.4.2';		// Dashboard Version
+$PageOptions['DashboardVersion']                     = '2.4.2_hlk';		// Dashboard Version
 
 $PageOptions['PageRefreshActive']                    = true;		// Activate automatic refresh
 $PageOptions['PageRefreshDelay']                     = '3000';		// Page refresh time in miliseconds
@@ -24,12 +24,12 @@ $PageOptions['NumberOfModules']                      = 5;		// Number of Modules 
 
 $PageOptions['RepeatersPage'] = array();
 $PageOptions['RepeatersPage']['LimitTo']             = 99;		// Number of Repeaters to show
-$PageOptions['RepeatersPage']['IPModus']             = 'ShowFullIP';	// See possible options above
+$PageOptions['RepeatersPage']['IPModus']             = 'ShowLast3ByteOfIP';	// See possible options above
 $PageOptions['RepeatersPage']['MasqueradeCharacter'] = '###';		// Character used for  masquerade
 
 $PageOptions['PeerPage'] = array();
 $PageOptions['PeerPage']['LimitTo']                  = 99;		// Number of peers to show
-$PageOptions['PeerPage']['IPModus']                  = 'ShowFullIP';	// See possible options above
+$PageOptions['PeerPage']['IPModus']                  = 'ShowLast3ByteOfIP';	// See possible options above
 $PageOptions['PeerPage']['MasqueradeCharacter']      = '###';		// Character used for  masquerade
 
 $PageOptions['LastHeardPage']['LimitTo']             = 109;		// Number of stations to show
@@ -37,7 +37,7 @@ $PageOptions['LastHeardPage']['LimitTo']             = 109;		// Number of statio
 $PageOptions['ModuleNames'] = array();					// Module nomination
 $PageOptions['ModuleNames']['A']                     = 'Geral';	// '<b>Link</b><br>XLX070-A';
 $PageOptions['ModuleNames']['B']                     = 'Beacons';
-$PageOptions['ModuleNames']['C']                     = 'YSF';
+$PageOptions['ModuleNames']['C']                     = 'YSF Interlink';
 $PageOptions['ModuleNames']['D']                     = 'D-Star';
 $PageOptions['ModuleNames']['E']                     = 'Echo Test';
 $PageOptions['ModuleNames']['F']                     = 'Fox';
@@ -45,27 +45,27 @@ $PageOptions['ModuleNames']['G']                     = 'Golf';
 $PageOptions['ModuleNames']['H']                     = 'Hotel';
 
 $PageOptions['MetaDescription']                      = 'XLX is a D-Star Reflector System for Ham Radio Operators.';	// Meta Tag Values, usefull for Search Engine
-$PageOptions['MetaKeywords']                         = 'Ham Radio, D-Star, XReflector, XLX, XRF, DCS, REF, ';		// Meta Tag Values, usefull for Search Engine
+$PageOptions['MetaKeywords']                         = 'Ham Radio, D-Star, XReflector, XLX, XRF, DCS, REF, PU5KOD';		// Meta Tag Values, usefull for Search Engine
 $PageOptions['MetaAuthor']                           = 'PU5KOD';		// Meta Tag Values, usefull for Search Engine
 $PageOptions['MetaRevisit']                          = 'After 3 Days';		// Meta Tag Values, usefull for Search Engine
 $PageOptions['MetaRobots']                           = 'index,follow';		// Meta Tag Values, usefull for Search Engine
 
-$PageOptions['Peers']['Show']			     = true;	// Show links whith other reflectors
+$PageOptions['Peers']['Show']			                     = true;	// Show links whith other reflectors
 $PageOptions['UserPage']['ShowFilter']               = false;	// Show Filter on Users page
 $PageOptions['Traffic']['Show']                      = true;	// Enable vnstat traffic statistics
 $PageOptions['IRCDDB']['Show']                       = true;	// Show D-Star live traffic status
 
-$PageOptions['CustomTXT']                            = 'XLX300 by PU5KOD';	// custom text in your header
+$PageOptions['CustomTXT']                            = 'XLX Reflector by PU5KOD';	// custom text in your header
 
 $Service['PIDFile']                                  = '/var/log/xlxd.pid';
 $Service['XMLFile']                                  = '/var/log/xlxd.xml';
 
 $CallingHome['Active']                               = true;				// xlx phone home, true or false
-$CallingHome['MyDashBoardURL']                       = 'https://xlx300.net';		// dashboard url
+$CallingHome['MyDashBoardURL']                       = 'https://xlxreflector.net';		// dashboard url
 $CallingHome['ServerURL']                            = 'http://xlxapi.rlx.lu/api.php';	// database server, do not change !!!!
 $CallingHome['PushDelay']                            = 300;				// push delay in seconds
 $CallingHome['Country']                              = "Brazil";			// Country
-$CallingHome['Comment']                              = "| RESTRICTED ACCESS | For information contact Daniel K., PU5KOD.";	// Comment. Max 100 character
+$CallingHome['Comment']                              = "XLXBRA Multiprotocol Reflector by PU5KOD, info: daniel@dvbr.net";	// Comment. Max 100 character
 $CallingHome['HashFile']                             = "/xlxd/callinghome.php";		// Make sure the apache user has read and write permissions in this folder.
 $CallingHome['LastCallHomefile']                     = "/xlxd/lastcallhome.php";	// Path to lastcallhome file
 $CallingHome['OverrideIPAddress']                    = "";		// Insert your IP address here. Leave blank for autodetection. No need to enter a fake address.
