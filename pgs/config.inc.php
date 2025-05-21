@@ -30,7 +30,7 @@ $PageOptions['RepeatersPage']['MasqueradeCharacter'] = '###';		// Character used
 $PageOptions['PeerPage'] = array();
 $PageOptions['PeerPage']['LimitTo']                  = 99;		// Number of peers to show
 $PageOptions['PeerPage']['IPModus']                  = 'ShowLast3ByteOfIP';	// See possible options above
-$PageOptions['PeerPage']['MasqueradeCharacter']      = '###';		// Character used for  masquerade
+$PageOptions['PeerPage']['MasqueradeCharacter']      = '###';		// Character used for masquerade
 
 $PageOptions['LastHeardPage']['LimitTo']             = 109;		// Number of stations to show
 
@@ -51,7 +51,7 @@ $PageOptions['MetaRevisit']                          = 'After 3 Days';		// Meta 
 $PageOptions['MetaRobots']                           = 'index,follow';		// Meta Tag Values, usefull for Search Engine
 
 $PageOptions['Peers']['Show']			                     = true;	// Show links whith other reflectors
-$PageOptions['UserPage']['ShowFilter']               = false;	// Show Filter on Users page
+$PageOptions['UserPage']['ShowFilter']               = true;	// Show Filter on Users page
 $PageOptions['Traffic']['Show']                      = true;	// Enable vnstat traffic statistics
 $PageOptions['IRCDDB']['Show']                       = true;	// Show D-Star live traffic status
 
@@ -65,7 +65,7 @@ $CallingHome['MyDashBoardURL']                       = 'https://xlxreflector.net
 $CallingHome['ServerURL']                            = 'http://xlxapi.rlx.lu/api.php';	// database server, do not change !!!!
 $CallingHome['PushDelay']                            = 300;				// push delay in seconds
 $CallingHome['Country']                              = "Brazil";			// Country
-$CallingHome['Comment']                              = "XLXBRA Multiprotocol Reflector by PU5KOD, info: daniel@dvbr.net";	// Comment. Max 100 character
+$CallingHome['Comment']                              = "XLX Multiprotocol Reflector by PU5KOD, info: daniel@dvbr.net";	// Comment. Max 100 character
 $CallingHome['HashFile']                             = "/xlxd/callinghome.php";		// Make sure the apache user has read and write permissions in this folder.
 $CallingHome['LastCallHomefile']                     = "/xlxd/lastcallhome.php";	// Path to lastcallhome file
 $CallingHome['OverrideIPAddress']                    = "";		// Insert your IP address here. Leave blank for autodetection. No need to enter a fake address.
