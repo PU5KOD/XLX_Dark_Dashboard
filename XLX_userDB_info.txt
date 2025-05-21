@@ -155,3 +155,11 @@ date.default_latitude = -26.1493
 
 ; https://php.net/date.default-longitude
 date.default_longitude = -49.8123
+
+
+
+====================================================================
+
+
+Na guia "Rede" para que as datas sejam exibidas em português basta adicionar o idioma português aos já instalados disponíveis na máquina, para isso basta entrar o comando abaixo e marcar o idioma pt_BR.UTF-8 UTF-8 e adicionar ele aos existentes, não é necessário marca-lo como principal, basta estar presente na lista:
+sudo dpkg-reconfigure locales
