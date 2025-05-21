@@ -15,7 +15,7 @@ $VNStat      = array();
 
 $PageOptions['ContactEmail']                         = 'daniel@dvbr.net';	// Support E-Mail address
 
-$PageOptions['DashboardVersion']                     = '2.4.2_hlk';		// Dashboard Version
+$PageOptions['DashboardVersion']                     = '2.4.2_blk';		// Dashboard Version
 
 $PageOptions['PageRefreshActive']                    = true;		// Activate automatic refresh
 $PageOptions['PageRefreshDelay']                     = '3000';		// Page refresh time in miliseconds
