@@ -1,0 +1,157 @@
+1. Instalar o banco de dados:
+sudo apt install sqlite3 php-sqlite3
+sudo service apache2 restart
+
+2. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o último item sobre como criar um serviço baseado em systemd:
+sudo crontab -e
+Inserir o valor abaixo no final do arquivo, ajustar os caminhos caso necessário:
+0 0 * * * wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv && php /var/www/html/xlxd/update_user_db.php
+
+3. Fazer o download do arquivo base:
+sudo wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv
+
+4. Criar o arquivo "update_user_db.php":
+sudo nano /var/www/html/xlxd/update_user_db.php
+com o conteúdo abaixo:
+
+<?php
+
+// Path to CSV and SQLite database
+$csvFile = '/var/www/html/xlxd/user.csv';
+$dbFile = '/var/www/html/xlxd/users.db';
+
+// Check if CSV file exists
+if (!file_exists($csvFile)) {
+    die("Error: user.csv not found at $csvFile\n");
+}
+
+// Create or open SQLite database
+try {
+    $db = new SQLite3($dbFile);
+} catch (Exception $e) {
+    die("Error: Could not open SQLite database: " . $e->getMessage() . "\n");
+}
+
+// Create table (drop if exists to ensure fresh data)
+$db->exec('DROP TABLE IF EXISTS users');
+$db->exec('CREATE TABLE users (
+    callsign TEXT PRIMARY KEY,
+    name TEXT,
+    city_state TEXT
+)');
+
+// Begin a transaction to speed up inserts
+$db->exec('BEGIN TRANSACTION');
+
+// Read CSV and insert into database
+$handle = fopen($csvFile, 'r');
+if ($handle === false) {
+    die("Error: Could not open user.csv\n");
+}
+
+// Skip header row
+fgetcsv($handle);
+
+// Prepare insert statement
+$stmt = $db->prepare('INSERT OR REPLACE INTO users (callsign, name, city_state) VALUES (:callsign, :name, :city_state)');
+
+$counter = 0;
+$startTime = microtime(true);
+
+// Process each row
+while (($row = fgetcsv($handle)) !== false) {
+    if (count($row) < 7) continue; // Skip malformed rows
+    $callsign = strtoupper(trim($row[1])); // Callsign (index 1)
+    $fullName = trim($row[2] . ' ' . $row[3]); // fname + surname
+    $cityState = trim($row[4] . '/' . $row[5]); // city/state (changed from 5/6 to 4/5)
+    if (empty($callsign)) continue; // Skip empty callsigns
+
+    $stmt->bindValue(':callsign', $callsign, SQLITE3_TEXT);
+    $stmt->bindValue(':name', $fullName, SQLITE3_TEXT);
+    $stmt->bindValue(':city_state', $cityState, SQLITE3_TEXT);
+    $stmt->execute();
+
+    // Print progress every 1000 rows
+    $counter++;
+    if ($counter % 1000 === 0) {
+        $elapsed = microtime(true) - $startTime;
+        echo "Processed $counter rows in " . number_format($elapsed, 2) . " seconds\n";
+    }
+}
+
+fclose($handle);
+
+// Commit the transaction
+$db->exec('COMMIT');
+
+$db->close();
+
+$elapsed = microtime(true) - $startTime;
+echo "Database updated successfully. Processed $counter rows in " . number_format($elapsed, 2) . " seconds\n";
+?>
+
+5. Executar o script para criação da base de dados SQLite:
+sudo php /var/www/html/xlxd/update_user_db.php
+sudo chown www-data:www-data /var/www/html/xlxd/users.db
+sudo chmod 644 /var/www/html/xlxd/users.db
+
+6. Caso não tenha o "crontab" instalado usar o systemd para executar os procedimentos de update, sao dois arquivos, o update_XLX_db.service e o update_XLX_db.timer, segue o script.
+
+	6.1. Criar o arquivo do serviço::
+	sudo nano /etc/systemd/system/update_XLX_db.service
+	com o seguinte conteúdo:
+	
+[Unit]
+Description=Atualizar o banco de dados de usuarios do XLX
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/var/www/html/xlxd/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
+StandardOutput=journal
+StandardError=journal
+
+	6.2. Criar o arquivo do timer:
+	sudo nano /etc/systemd/system/update_XLX_db.timer
+	coom o seguinte conteúdo:
+
+[Unit]
+Description=Executar update_XLX_db.sh diariamente às 3h
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+
+	6.3. Recarregar os serviços:
+	sudo systemctl daemon-reexec
+	sudo systemctl daemon-reload
+	sudo systemctl enable --now update_XLX_db.timer
+
+	6.4. Verificar se o timer está ativo e funcionando:
+	systemctl list-timers --all | grep update_XLX_db
+	
+	6.5. Se quiser testar manualmente o serviço:
+	sudo systemctl start update_XLX_db.service
+
+
+====================================================================
+
+
+Adequação do Apache necessária para exibir as datas corretamente:
+
+1. Em /etc/php/8.2/apache2/php.ini procurar pelo parâmetro date.timezone (no arquivo ele está abaixo de "Module Settings") e definir ele para o local correto, no exemplo abaixo ficou definido como date.timezone = "America/Sao_Paulo", existem outros valores que também podem ser alterados a vontade, so não esquecer de apagar o ; da frente do parâmetro para habilita-lo.
+Após a alteração fazer o reload do apache com "sudo systemctl reload apache2.service".
+
+[Date]
+; Defines the default timezone used by the date functions
+; https://php.net/date.timezone
+date.timezone = "America/Sao_Paulo"
+
+; https://php.net/date.default-latitude
+date.default_latitude = -26.1493
+
+; https://php.net/date.default-longitude
+date.default_longitude = -49.8123
