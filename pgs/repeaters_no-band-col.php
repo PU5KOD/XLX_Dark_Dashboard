@@ -160,7 +160,7 @@ for ($i=0;$i<$Reflector->NodeCount();$i++) {
         $Suffix = $Reflector->Nodes[$i]->GetSuffix();
         echo '<a href="https://www.qrz.com/db/'.$FullCallsign.'" class="pl" title="Clique aqui para consultar o QRZ da estação" target="_blank">'.$FullCallsign.'</a>';
         if ($Suffix) {
-            echo ' - <b>'.$Suffix.'</b>';
+            echo ' - <i>'.$Suffix.'</i>';
         }
         echo '</td>
             <td align="center">'.date("d/m/Y, H:i:s", $Reflector->Nodes[$i]->GetLastHeardTime()).'</td>
