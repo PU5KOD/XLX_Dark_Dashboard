@@ -34,6 +34,7 @@ if (isset($_GET['do'])) {
       $_SESSION['FilterCallSign'] = null;
    }
 }
+
 // Function to get user data from SQLite database
 function getUserData($callsign) {
     $dbFile = '/var/www/html/xlxd/users.db';
@@ -47,9 +48,14 @@ function getUserData($callsign) {
     $stmt->bindValue(':callsign', $callsign, SQLITE3_TEXT);
     $result = $stmt->execute();
     if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        // Separate city and state from city_state field using ", "
+        $cityState = explode(', ', $row['city_state']);
+        $cidade = trim($cityState[0]);
+        $estado = isset($cityState[1]) ? trim($cityState[1]) : '';
+
         $data = [
             'name' => htmlspecialchars($row['name']),
-            'city_state' => htmlspecialchars($row['city_state'])
+            'city_state' => htmlspecialchars($cidade . ', ' . $estado)
         ];
     } else {
         $data = ['name' => '-', 'city_state' => '-'];
@@ -58,6 +64,7 @@ function getUserData($callsign) {
     return $data;
 }
 ?>
+
 <table border="0">
    <tr>
       <td valign="top">
@@ -140,8 +147,8 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
                          echo ' / ' . $Reflector->Stations[$i]->GetPeer();
                      }
                      echo '</td>
-                    <td width="210" align="center">' . $userInfo['name'] . '</td>
-                    <td width="230" align="center">' . $userInfo['city_state'] . '</td>
+                    <td width="220" align="center">' . $userInfo['name'] . '</td>
+                    <td width="200" align="center">' . $userInfo['city_state'] . '</td>
                     <td align="center" width="40" valign="middle">';
                      list ($Flag, $Name) = $Reflector->GetFlag($Reflector->Stations[$i]->GetCallSign());
                      if (file_exists("./img/flags/" . $Flag . ".png")) {
