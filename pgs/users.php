@@ -105,8 +105,8 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
                 <th>Indicativo</th>
                 <th>Sufixo</th>
                 <th>Gateway</th>
-                <th>Nome</th>
-                <th>Cidade</th>
+                <th>Operador</th>
+                <th>Origem</th>
                 <th>País</th>
                 <th>Última Atividade</th>
                 <th>DPRS</th>
