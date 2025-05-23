@@ -5,7 +5,7 @@ sudo service apache2 restart
 2. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o último item sobre como criar um serviço baseado em systemd:
 sudo crontab -e
 Inserir o valor abaixo no final do arquivo, ajustar os caminhos caso necessário:
-0 0 * * * wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv && php /var/www/html/xlxd/update_user_db.php
+0 3 * * * wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv && php /var/www/html/xlxd/update_user_db.php
 
 3. Fazer o download do arquivo base:
 sudo wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv
