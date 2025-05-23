@@ -100,7 +100,7 @@ if ($PageOptions['UserPage']['ShowFilter']) {
     <tr>
         <th width="40">#</th>
         <th width="40">País</th>
-        <th width="120">Gateway</th>
+        <th width="100">Gateway</th>
         <th width="170">Última Atividade</th>
         <th width="130">Duração</th>
         <th width="100">Protocolo</th>
