@@ -125,7 +125,7 @@ if ($PageOptions['UserPage']['ShowFilter']) {
         <th width="40">#</th>
         <th width="40">País</th>
         <th width="100">Gateway</th>
-        <th width="200">Nome</th> <!-- Nova coluna movida para após Gateway -->
+        <th width="200">Operador</th> 
         <th width="170">Última Atividade</th>
         <th width="120">Duração</th>
         <th width="70">Protocolo</th>
