@@ -24,6 +24,37 @@ $db->exec('CREATE TABLE users (
     city_state TEXT
 )');
 
+// Mapping of Brazilian states for acronyms
+$estadosBrasil = [
+    'Acre' => 'AC',
+    'Alagoas' => 'AL',
+    'Amapa' => 'AP',
+    'Amazonas' => 'AM',
+    'Bahia' => 'BA',
+    'Ceara' => 'CE',
+    'Distrito Federal' => 'DF',
+    'Espirito Santo' => 'ES',
+    'Goias' => 'GO',
+    'Maranhao' => 'MA',
+    'Mato Grosso' => 'MT',
+    'Mato Grosso do Sul' => 'MS',
+    'Minas Gerais' => 'MG',
+    'Para' => 'PA',
+    'Paraiba' => 'PB',
+    'Parana' => 'PR',
+    'Pernambuco' => 'PE',
+    'Piaui' => 'PI',
+    'Rio de Janeiro' => 'RJ',
+    'Rio Grande do Norte' => 'RN',
+    'Rio Grande do Sul' => 'RS',
+    'Rondonia' => 'RO',
+    'Roraima' => 'RR',
+    'Santa Catarina' => 'SC',
+    'Sao Paulo' => 'SP',
+    'Sergipe' => 'SE',
+    'Tocantins' => 'TO'
+];
+
 // Begin a transaction to speed up inserts
 $db->exec('BEGIN TRANSACTION');
 
@@ -47,7 +78,18 @@ while (($row = fgetcsv($handle)) !== false) {
     if (count($row) < 7) continue; // Skip malformed rows
     $callsign = strtoupper(trim($row[1])); // Callsign (index 1)
     $fullName = trim($row[2] . ' ' . $row[3]); // fname + surname
-    $cityState = trim($row[4] . ' - ' . $row[5]); // city/state (changed from 5/6 to 4/5)
+    $cidade = trim($row[4]); // city (index 4)
+    $estado = trim($row[5]); // state (index 5)
+
+    // Check if the state is Brazilian and abbreviate it
+    $estadoAbreviado = $estado;
+    if (array_key_exists($estado, $estadosBrasil)) {
+        $estadoAbreviado = $estadosBrasil[$estado];
+    }
+
+    // Combine city and state with ", " as separator
+    $cityState = $cidade . ', ' . $estadoAbreviado;
+
     if (empty($callsign)) continue; // Skip empty callsigns
 
     $stmt->bindValue(':callsign', $callsign, SQLITE3_TEXT);
