@@ -2,7 +2,7 @@
 //session_start();
 //$usuarios_pendentes = "/var/www/restricted/pendentes.txt";
 
-// Verifica se o servidor passou a variável de autenticação
+// Checks if the server passed the authentication variable
 //if (!isset($_SERVER['PHP_AUTH_USER'])) {
 //    header('WWW-Authenticate: Basic realm="Restricted"');
 //    header('HTTP/1.0 401 Unauthorized');
@@ -11,7 +11,7 @@
 //}
 //$usuario = $_SERVER['PHP_AUTH_USER'];
 
-// Verifica se o usuário está na lista de troca de senha
+// Checks if the user is on the password change list
 //$usuarios_pendentes_lista = file($usuarios_pendentes, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 //if (in_array($usuario, $usuarios_pendentes_lista)) {
 //    header("Location: /trocar_senha.php");
@@ -95,14 +95,14 @@ if ($CallingHome['Active']) {
     $Hash = "";
 }
 
-// Verifica se a requisição é AJAX
+// Checks if the request is AJAX
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 
-// Define $_GET['show'] como vazio se não estiver definido
+// Sets $_GET['show'] to empty if not defined
 $show = isset($_GET['show']) ? $_GET['show'] : '';
 
 if (!$isAjax) {
-    // Se não for uma requisição AJAX, inclui o DOCTYPE, <html>, <head> e <script>
+    // If it is not an AJAX request, it includes the DOCTYPE, <html>, <head> and <script>
     echo '<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -154,7 +154,7 @@ if (!$isAjax) {
 <body>';
 }
 
-// Conteúdo do <body> (será retornado tanto para requisições normais quanto AJAX)
+// Contents of <body> (will be returned for both normal and AJAX requests)
 ?>
     <?php if (file_exists("./tracking.php")) { include_once("tracking.php"); }?>
     <div id="top" style="text-align: center;">
@@ -225,7 +225,7 @@ if (!$isAjax) {
     </div>
 <?php
 if (!$isAjax) {
-    // Se não for uma requisição AJAX, fecha as tags <body> e <html>
+    // If it is not an AJAX request, close the <body> and <html> tags
     echo '</body>
 </html>';
 }
