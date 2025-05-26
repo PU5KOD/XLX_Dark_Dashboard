@@ -158,7 +158,7 @@ if (!$isAjax) {
 ?>
     <?php if (file_exists("./tracking.php")) { include_once("tracking.php"); }?>
     <div id="top" style="text-align: center;">
-        <img src="./img/header.jpg" alt="XLX Gateway" style="margin: 0 auto;">
+        <img src="./img/header.png" alt="XLX Gateway" style="margin: 0 auto;">
     </div>
     <div id="menubar">
         <div id="menu">
