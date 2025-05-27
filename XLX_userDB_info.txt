@@ -5,20 +5,20 @@ sudo service apache2 restart
 2. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o item 6 sobre como criar um serviço baseado em systemd:
 sudo crontab -e
 Inserir o valor abaixo no final do arquivo, ajustar os caminhos caso necessário:
-0 3 * * * wget -O /xlxd/user.csv https://radioid.net/static/user.csv && php /var/www/html/xlxd/update_user_db.php
+0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php
 
-3. Fazer o download do arquivo base:
-sudo wget -O /xlxd/user.csv https://radioid.net/static/user.csv
+3. Fazer o download do arquivo de usuarios base:
+sudo wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv
 
-4. Criar o arquivo "update_user_db.php":
-sudo nano /var/www/html/xlxd/update_user_db.php
+4. Criar o arquivo "create_user_db.php":
+sudo nano /xlxd/users_db/create_user_db.php
 com o conteúdo abaixo:
 
 <?php
 
 // Path to CSV and SQLite database
-$csvFile = '/xlxd/user.csv';
-$dbFile = '/xlxd/users.db';
+$csvFile = '/xlxd/users_db/user.csv';
+$dbFile = '/xlxd/users_db/users.db';
 
 // Check if CSV file exists
 if (!file_exists($csvFile)) {
@@ -91,9 +91,9 @@ echo "Database updated successfully. Processed $counter rows in " . number_forma
 ?>
 
 5. Executar o script para criação da base de dados SQLite:
-sudo php /var/www/html/xlxd/update_user_db.php
-sudo chown www-data:www-data /xlxd/users.db
-sudo chmod 644 /xlxd/users.db
+sudo php /xlxd/users_db/create_user_db.php
+sudo chown www-data:www-data /xlxd/users_db/users.db
+sudo chmod 644 /xlxd/users_db/users.db
 
 6. Caso não tenha o "crontab" instalado usar o systemd para executar os procedimentos de update, sao dois arquivos, o update_XLX_db.service e o update_XLX_db.timer, segue o script.
 
@@ -106,7 +106,7 @@ Description=Atualizar o banco de dados de usuarios do XLX
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c '/var/www/html/xlxd/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
+ExecStart=/bin/bash -c '/xlxd/users_db/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
 StandardOutput=journal
 StandardError=journal
 
