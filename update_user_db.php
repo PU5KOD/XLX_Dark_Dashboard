@@ -1,8 +1,8 @@
 <?php
 
 // Path to CSV and SQLite database
-$csvFile = '/var/www/html/xlxd/user.csv';
-$dbFile = '/var/www/html/xlxd/users.db';
+$csvFile = '/xlxd/user.csv';
+$dbFile = '/xlxd/users.db';
 
 // Check if CSV file exists
 if (!file_exists($csvFile)) {
