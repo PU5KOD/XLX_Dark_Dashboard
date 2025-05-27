@@ -56,7 +56,7 @@ if (isset($_GET['do'])) {
 
 // Função para obter dados do usuário do banco SQLite
 function getUserData($callsign) {
-    $dbFile = '/var/www/html/xlxd/users.db';
+    $dbFile = '/xlxd/users_db/users.db';
     try {
         $db = new SQLite3($dbFile);
     } catch (Exception $e) {
@@ -125,7 +125,7 @@ if ($PageOptions['UserPage']['ShowFilter']) {
         <th width="30">#</th>
         <th width="40">País</th>
         <th width="100">Gateway</th>
-        <th width="220">Operador</th> 
+        <th width="220">Operador</th>
         <th width="170">Última Atividade</th>
         <th width="120">Duração</th>
         <th width="100">Protocolo</th>
