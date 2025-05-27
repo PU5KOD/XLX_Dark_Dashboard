@@ -18,26 +18,34 @@
  <th width="70">DTMF</th>
  </tr>
 <?php
+
 $ReflectorNumber = substr($Reflector->GetReflectorName(), 3, 3);
 $NumberOfModules = isset($PageOptions['NumberOfModules']) ? min(max($PageOptions['NumberOfModules'],0),26) : 26;
+
 $odd = "";
+
 for ($i = 1; $i <= $NumberOfModules; $i++) {
+
  $module = chr(ord('A')+($i-1));
+
  if ($odd == "#252525") { $odd = "#2c2c2c"; } else { $odd = "#252525"; }
+
  echo '
  <tr height="30" bgcolor="'.$odd.'" onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\''.$odd.'\';">
  <td align="center">'. $module .'</td>
  <td align="center">'. (empty($PageOptions['ModuleNames'][$module]) ? '-' : $PageOptions['ModuleNames'][$module]) .'</td>
  <td align="center">'. count($Reflector->GetNodesInModulesByID($module)) .'</td>
  <td align="center">'. 'REF' . $ReflectorNumber . $module . 'L' .'</td>
- <td align="center">'. (is_numeric($ReflectorNumber) ? '*' . sprintf('%01d', $ReflectorNumber) . $module : '-') .'</td>
+ <td align="center">'. (is_numeric($ReflectorNumber) ? '*' . sprintf('%01d',$ReflectorNumber) . (($i<=4)?$module:sprintf('%02d',$i)) : '-') .'</td>
  <td align="center">'. 'XRF' . $ReflectorNumber . $module . 'L' .'</td>
- <td align="center">'. (is_numeric($ReflectorNumber) ? 'B' . sprintf('%01d', $ReflectorNumber) . $module : '-') .'</td>
+ <td align="center">'. (is_numeric($ReflectorNumber) ? 'B' . sprintf('%01d',$ReflectorNumber) . (($i<=4)?$module:sprintf('%02d',$i)) : '-') .'</td>
  <td align="center">'. 'DCS' . $ReflectorNumber . $module . 'L' .'</td>
- <td align="center">'. (is_numeric($ReflectorNumber) ? 'D' . sprintf('%01d', $ReflectorNumber) . $module : '-') .'</td>
+ <td align="center">'. (is_numeric($ReflectorNumber) ? 'D' . sprintf('%01d',$ReflectorNumber) . (($i<=4)?$module:sprintf('%02d',$i)) : '-') .'</td>
  <td align="center">'. (4000+$i) .'</td>
  <td align="center">'. (9+$i) .'</td>
  </tr>';
 }
+
 ?>
+
 </table>
