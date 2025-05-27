@@ -2,7 +2,7 @@
 echo ""
 echo "Atualizando arquivo da Base de Dados"
 echo ""
-wget -O /var/www/html/xlxd/user.csv https://radioid.net/static/user.csv 
+wget -O /xlxd/user.csv https://radioid.net/static/user.csv 
 echo "Compilando Banco de Dados"
 echo ""
 php /var/www/html/xlxd/update_user_db.php
