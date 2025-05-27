@@ -122,7 +122,7 @@ if ($PageOptions['UserPage']['ShowFilter']) {
 
 ?>
     <tr>
-        <th width="40">#</th>
+        <th width="30">#</th>
         <th width="40">País</th>
         <th width="100">Gateway</th>
         <th width="220">Operador</th> 
