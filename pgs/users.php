@@ -37,7 +37,7 @@ if (isset($_GET['do'])) {
 
 // Function to get user data from SQLite database
 function getUserData($callsign) {
-    $dbFile = '/var/www/html/xlxd/users.db';
+    $dbFile = '/xlxd/users_db/users.db';
     try {
         $db = new SQLite3($dbFile);
     } catch (Exception $e) {
