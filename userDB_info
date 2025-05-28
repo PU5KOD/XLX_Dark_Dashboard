@@ -16,16 +16,16 @@ sudo php /xlxd/users_db/create_user_db.php
 sudo chown www-data:www-data /xlxd/users_db/users.db
 sudo chmod 644 /xlxd/users_db/users.db
 
-5. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o item 6 a seguir sobre como criar um serviço baseado em systemd:
+5. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado seguir para o item 6 a seguir que explica como criar o serviço baseado em systemd:
 sudo crontab -e
 Inserir o valor abaixo no final do arquivo, ajustar os caminhos caso necessário:
 0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php
 
 6. Caso não possua o "crontab" instalado e não quiser instalar ele é possível usar o systemd para executar os procedimentos de update, são dois arquivos, o update_XLX_db.service e o update_XLX_db.timer, segue o script.
 
-	6.1. Criar o arquivo do serviço::
-	sudo nano /etc/systemd/system/update_XLX_db.service
-	com o seguinte conteúdo:
+6.1. Copiar os dois arquivos "update_XLX_db" que estão no diretório "xlxd_installer/templates" do projeto de instalação do refletor, ou caso não encontre-os crie eles de acordo com o seguinte:
+sudo nano /etc/systemd/system/update_XLX_db.service
+com o seguinte conteúdo:
 	
 [Unit]
 Description=Atualizar o banco de dados de usuarios do XLX
@@ -49,7 +49,6 @@ Persistent=true
 
 [Install]
 WantedBy=timers.target
-
 
 	6.3. Recarregar os serviços:
 	sudo systemctl daemon-reload
