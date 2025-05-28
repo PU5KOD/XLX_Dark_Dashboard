@@ -201,7 +201,7 @@ if (!$isAjax) {
             <br />Refletor D-Star Multiprotocolo <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
             | Personalizado por Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
             <br />Tempo em serviço: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
-            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
+            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd_installer"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
         </div>
     </div>
 <?php
