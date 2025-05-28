@@ -1,23 +1,4 @@
 <?php
-//session_start();
-//$usuarios_pendentes = "/var/www/restricted/pendentes.txt";
-
-// Checks if the server passed the authentication variable
-//if (!isset($_SERVER['PHP_AUTH_USER'])) {
-//    header('WWW-Authenticate: Basic realm="Restricted"');
-//    header('HTTP/1.0 401 Unauthorized');
-//    echo "Acesso negado!";
-//    exit;
-//}
-//$usuario = $_SERVER['PHP_AUTH_USER'];
-
-// Checks if the user is on the password change list
-//$usuarios_pendentes_lista = file($usuarios_pendentes, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-//if (in_array($usuario, $usuarios_pendentes_lista)) {
-//    header("Location: /trocar_senha.php");
-//    exit;
-//}
-
 if (file_exists("./pgs/functions.php")) {
     require_once("./pgs/functions.php");
 } else {
@@ -220,7 +201,7 @@ if (!$isAjax) {
             <br />Refletor D-Star Multiprotocolo <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
             | Personalizado por Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
             <br />Tempo em serviço: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
-            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd"><center><img src="./img/debian_powered.jpg" width="125"></center></a></p>';?>
+            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
         </div>
     </div>
 <?php
