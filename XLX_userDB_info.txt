@@ -2,15 +2,15 @@
 sudo apt install sqlite3 php-sqlite3
 sudo service apache2 restart
 
-2. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o item 6 sobre como criar um serviço baseado em systemd:
+2. Mover a pasta users_db para /xlxd/users_db/
+
+3. Criar o processo de atualização diária da base de dados dos indicativos, se não tiver o app "crontab" instalado verificar o item 6 sobre como criar um serviço baseado em systemd:
 sudo crontab -e
 Inserir o valor abaixo no final do arquivo, ajustar os caminhos caso necessário:
 0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php
 
-3. Fazer o download do arquivo de usuários base:
+4. Fazer o download do arquivo de usuários base:
 sudo wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv
-
-4. Copiar o arquivo "create_user_db.php" para /xlxd/users_db/
 
 5. Executar o script para criação da base de dados SQLite:
 sudo php /xlxd/users_db/create_user_db.php
