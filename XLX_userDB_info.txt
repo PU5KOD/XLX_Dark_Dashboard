@@ -1,4 +1,4 @@
-1. Instalar o banco de dados:
+1. Instalar as dependências do banco de dados:
 sudo apt install sqlite3 php-sqlite3
 sudo service apache2 restart
 
