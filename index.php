@@ -218,9 +218,9 @@ if (!$isAjax) {
         ?>
         <div style="width:100%;text-align:center;margin-top:50px;color:#c3dcba;">
             <br />Refletor D-Star Multiprotocolo <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
-            | Personalizado por Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a> (<a href="https://t.me/PU5KOD">Telegram</a> / <a href="https://api.whatsapp.com/send?phone=5541991912000">WhatsApp</a>)</b>
+            | Personalizado por Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
             <br />Tempo em serviço: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
-            <?php echo '<p><a href="http://cloud.dvbr.net"><center><img src="./img/powered-by-aws-white.png" width="125"></center></a></p>';?>
+            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd"><center><img src="./img/debian_powered.jpg" width="125"></center></a></p>';?>
         </div>
     </div>
 <?php
