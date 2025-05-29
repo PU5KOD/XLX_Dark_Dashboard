@@ -1,0 +1,101 @@
+1. Install database dependencies:
+sudo apt install sqlite3 php-sqlite3
+sudo service apache2 restart
+
+2. Move the users_db folder to /xlxd/users_db/ and fix the permissions:
+sudo mv XLX_Dark_Dashboard/users_db/ /xlxd/
+sudo chmod -R 755 /xlxd/users_db
+sudo chown -R  www-data:www-data /xlxd/users_db
+
+3. Run the file to create the initial user base:
+sudo /xlxd/users_db/
+sudo ./update_db.sh 
+
+4. Run the script to create the SQLite database:
+sudo php /xlxd/users_db/create_user_db.php
+sudo chown www-data:www-data /xlxd/users_db/users.db
+sudo chmod 644 /xlxd/users_db/users.db
+
+5. Create the daily update process for the callsign database, if you don't have the "crontab" app installed, go to item 6 below, which explains how to create the systemd-based service:
+sudo crontab -e
+Insert the value below at the end of the file, adjust the paths if necessary:
+0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php
+
+6. If you don't have "crontab" installed and don't want to install it, you can use systemd to perform the update procedures, There are two files, update_XLX_db.service and update_XLX_db.timer, follow the script.
+
+6.1. Copy the two "update_XLX_db" files that are in the "yourhomedirectory/xlxd_installer/templates" directory of the reflector installation project, or if you don't find them, create them according to the following:
+sudo nano /etc/systemd/system/update_XLX_db.service
+with the following content:
+	
+[Unit]
+Description=Update XLX user database
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/xlxd/users_db/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
+StandardOutput=journal
+StandardError=journal
+
+6.2. Create the timer file:
+sudo nano /etc/systemd/system/update_XLX_db.timer
+with the following content:
+
+[Unit]
+Description=Run update_XLX_db.sh daily at 3am
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+6.3. Reload services:
+sudo systemctl daemon-reload
+sudo systemctl enable --now update_XLX_db.timer
+
+6.4. Check if the timer is active and working:
+systemctl list-timers --all | grep update_XLX_db
+	
+6.5. If you want to manually test the service:
+sudo systemctl start update_XLX_db.service
+
+
+
+=======================================================
+
+
+
+Apache adaptation needed to display dates correctly:
+
+1. In /etc/php/8.2/apache2/php.ini look for the date.timezone parameter (in the file it is below "Module Settings") and set it to the correct location, in the example below it was set as date.timezone = "America/Sao_Paulo", there are other values that can also be changed at will, just don't forget to delete the ; in front of the parameter to enable it.
+After the change, reload Apache with "sudo systemctl reload apache2.service".
+
+[Date]
+; Defines the default timezone used by the date functions
+; https://php.net/date.timezone
+date.timezone = "America/Sao_Paulo"
+
+; https://php.net/date.default-latitude
+date.default_latitude = -26.1493
+
+; https://php.net/date.default-longitude
+date.default_longitude = -49.8123
+
+
+
+=======================================================
+
+
+
+In the "Network" tab, for the dates to be displayed in Portuguese, simply add the Portuguese language to those already installed on the machine, to do this, simply enter the command below and select the language pt_BR.UTF-8 UTF-8 and add it to the existing ones, it's not necessary to mark it as main, it just needs to be present in the list:
+sudo dpkg-reconfigure locales
+
+
+
+=======================================================
+
+
+
+To-do
+Detail procedures for password-protected websites
