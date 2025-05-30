@@ -99,3 +99,4 @@ sudo dpkg-reconfigure locales
 
 To-do
 Detail procedures for password-protected websites
+UPnP port forwarding
