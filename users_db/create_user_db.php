@@ -101,10 +101,10 @@ while (($row = fgetcsv($handle)) !== false) {
     $counter++;
     if ($counter % 1000 === 0) {
         $elapsed = microtime(true) - $startTime;
-        echo "Processed $counter rows in " . number_format($elapsed, 2) . " seconds\n";
+        echo "\rProcessed $counter rows in " . number_format($elapsed, 2) . " seconds   ";
     }
 }
-
+echo "\n";
 fclose($handle);
 
 // Commit the transaction
