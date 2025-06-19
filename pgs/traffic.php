@@ -45,9 +45,9 @@ setlocale(LC_TIME, 'en.UTF-8', 'en', 'english');
     echo '
     <table style="' . $tableStyle . '">
         <tr>
-            <th style="' . $thStyle . '">Total RX</th>
-            <th style="' . $thStyle . '">Total TX</th>
-            <th style="' . $thStyle . '">Grand total (TX + RX)</th>
+            <th style="' . $thStyle . '">RX Total</th>
+            <th style="' . $thStyle . '">TX Total</th>
+            <th style="' . $thStyle . '">Grand Total (TX + RX)</th>
         </tr>
         <tr>
             <td style="' . $tdStyle . '">' . format_traffic($Data['totals']['rx'], $Data['totals']['rx_unit']) . '</td>
