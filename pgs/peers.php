@@ -20,15 +20,15 @@ fclose($Result);
 <table class="listingtable">
  <tr>
    <th width="40">#</th>
-   <th width="80">Refletor</th>
-   <th width="170">Inicio da Atividade</th>
-   <th width="130">Duração</th>
-   <th width="100">Protocolo</th>
-   <th width="90">Módulo(s)</th><?php
+   <th width="80">Reflector</th>
+   <th width="170">Start of Activity</th>
+   <th width="130">Duration</th>
+   <th width="100">Protocol</th>
+   <th width="90">Module(s)</th><?php
 
 if ($PageOptions['PeerPage']['IPModus'] != 'HideIP') {
    echo '
-   <th width="140">IP do Servidor</th>';
+   <th width="140">Server IP</th>';
 }
 
 ?>
@@ -54,7 +54,7 @@ for ($i=0;$i<$Reflector->PeerCount();$i++) {
    }
    if ($Result && (trim($URL) != "")) {
       echo '
-   <td align="center"><a href="'.$URL.'" target="_blank" class="pl" title="Clique aqui para visitar o dashboard do '.$Name.'">'.$Name.'</a></td>';
+   <td align="center"><a href="'.$URL.'" target="_blank" class="pl" title="Click here to visit the dashboard of '.$Name.'">'.$Name.'</a></td>';
    } else {
       echo '
    <td align="center">'.$Name.'</td>';
