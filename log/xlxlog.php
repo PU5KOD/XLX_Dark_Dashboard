@@ -7,7 +7,7 @@ if (isset($_POST['password'])) {
 
 if (isset($_SESSION['password'])) {
    
-   if ($_SESSION['password'] != "-D-Star+") {
+   if ($_SESSION['password'] != "XLX_log") {
    echo '
    <form name="frmpass" action="./xlxlog.php" method="post">
    
