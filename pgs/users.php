@@ -80,8 +80,8 @@ function getUserData($callsign) {
                                 <form name="frmFilterCallSign" method="post" action="./index.php">
                                    <input type="hidden" name="do" value="SetFilter" />
                                    <input type="text" class="FilterField" value="' . $_SESSION['FilterCallSign'] . '" name="txtSetCallsignFilter"
-placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
-                                   <input type="submit" value="Aplicar" class="FilterSubmit" />
+placeholder="Callsign" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
+                                   <input type="submit" value="Apply" class="FilterSubmit" />
                                 </form>
                              </td>';
                  if (($_SESSION['FilterModule'] != null) || ($_SESSION['FilterCallSign'] != null)) {
@@ -92,8 +92,8 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
                              <td align="center" style="padding-right:3px;">
                                 <form name="frmFilterModule" method="post" action="./index.php">
                                    <input type="hidden" name="do" value="SetFilter" />
-                                   <input type="text" class="FilterField" value="' . $_SESSION['FilterModule'] . '" name="txtSetModuleFilter" placeholder="Módulo" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
-                                   <input type="submit" value="Aplicar" class="FilterSubmit" />
+                                   <input type="text" class="FilterField" value="' . $_SESSION['FilterModule'] . '" name="txtSetModuleFilter" placeholder="Module" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
+                                   <input type="submit" value="Apply" class="FilterSubmit" />
                                 </form>
                              </td>
                        </table>
@@ -102,13 +102,13 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
              }
              ?>
              <tr>
-                <th>Indicativo</th>
-                <th>Sufixo</th>
+                <th>Callsign</th>
+                <th>Suffix</th>
                 <th>Gateway</th>
-                <th>Operador</th>
-                <th>Origem</th>
-                <th>País</th>
-                <th>Última Atividade</th>
+                <th>Operator</th>
+                <th>Origin</th>
+                <th>Country</th>
+                <th>Last Activity</th>
                 <th>DPRS</th>
                 <th align="center" valign="middle"><img src="./img/speaker.png" alt="Listening on" style="width: 18px;"/></th>
              </tr>
@@ -136,7 +136,7 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
                      if ($odd == "#252525") { $odd = "#2c2c2c"; } else { $odd = "#252525"; }
                      echo '
                  <tr height="30" bgcolor="' . $odd . '" onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\'' . $odd . '\'">
-                    <td width="80" align="center"><a href="https://www.qrz.com/db/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Clique aqui para consultar o QRZ deste indicativo" target="_blank">' . $Reflector->Stations[$i]->GetCallsignOnly() . '</a></td>
+                    <td width="80" align="center"><a href="https://www.qrz.com/db/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the QRZ for this callsign" target="_blank">' . $Reflector->Stations[$i]->GetCallsignOnly() . '</a></td>
                     <td width="50" align="center">' . $Reflector->Stations[$i]->GetSuffix() . '</td>';
                      // Fetch user data from SQLite database
                      $callsign = $Reflector->Stations[$i]->GetCallsignOnly();
@@ -156,7 +156,7 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
                      }
                      echo '</td>
                     <td width="170" align="center">' . @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime()) . '</td>
-                    <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Clique aqui para consultar a localização do dispositivo" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
+                    <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
                     <td align="center" width="30" valign="middle">';
                       if ($i == 0 && $Reflector->Stations[$i]->GetLastHeardTime() > (time() - 10)) {
                           echo '<img src="./img/tx.gif" style="margin-top:3px;" height="20"/>';
@@ -183,9 +183,9 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
        $userCount = count($Users);
        echo '<tr>';
        if (isset($PageOptions['ModuleNames'][$Modules[$i]])) {
-           echo '<th>Módulo ' . $Modules[$i] . ' | ' . $PageOptions['ModuleNames'][$Modules[$i]] . ' (' . $userCount . ')</th>';
+           echo '<th>Module ' . $Modules[$i] . ' | ' . $PageOptions['ModuleNames'][$Modules[$i]] . ' (' . $userCount . ')</th>';
        } else {
-           echo '<th>Módulo ' . $Modules[$i] . ' | ' . $Modules[$i] . ' (' . $userCount . ')</th>';
+           echo '<th>Module ' . $Modules[$i] . ' | ' . $Modules[$i] . ' (' . $userCount . ')</th>';
        }
        echo '</tr>';
        echo '<tr>';
@@ -196,7 +196,7 @@ placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(Relo
        for ($j = 0; $j < count($Users); $j++) {
            $Displayname = $Reflector->GetCallsignAndSuffixByID($Users[$j]);
            echo '<div style="border: 1px solid #444444; display: inline-block;">';
-           echo '<a href="http://www.aprs.fi/' . $Displayname . '" class="pl" title="Clique aqui para consultar a localização da estação" target="_blank" style="background-color: ' . ($odd == "#252525" ? "#242424" : "#252525") . '; padding: 2px 5px; margin: 2px; display: inline-block;">' . $Displayname . '</a>';
+           echo '<a href="http://www.aprs.fi/' . $Displayname . '" class="pl" title="Click here to check the location of the station" target="_blank" style="background-color: ' . ($odd == "#252525" ? "#242424" : "#252525") . '; padding: 2px 5px; margin: 2px; display: inline-block;">' . $Displayname . '</a>';
            echo '</div>';
            $odd = ($odd == "#252525") ? "#242424" : "#252525";
            $UserCheckedArray[] = $Users[$j];
