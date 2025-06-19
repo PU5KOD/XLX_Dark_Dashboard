@@ -107,11 +107,11 @@ if (!$isAjax) {
             function ReloadPage() {
                 var url = "./index.php?show=' . urlencode($show) . '";
                 $.get(url, function(data) {
-                    console.log("Atualizando conteúdo do body...");
+                    console.log("Updating body content...");
                     $("body").html(data);
                 })
                     .fail(function(jqXHR, textStatus, errorThrown) {
-                        console.error("Erro na requisição AJAX: " + textStatus + ", " + errorThrown);
+                        console.error("Error in AJAX request: " + textStatus + ", " + errorThrown);
                     })
                     .always(function() {
                         PageRefresh = setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');
@@ -145,8 +145,8 @@ if (!$isAjax) {
         <div id="menu">
             <table border="0">
                 <tr>
-                    <td><a href="./index.php" class="menulink<?php if ($show === '') { echo 'active'; } ?>">Atividade Recente</a></td>
-                    <td><a href="./index.php?show=repeaters" class="menulink<?php if ($show === 'repeaters') { echo 'active'; } ?>">Estações Conectadas (<?php echo $Reflector->NodeCount(); ?>)</a></td>
+                    <td><a href="./index.php" class="menulink<?php if ($show === '') { echo 'active'; } ?>">Recent Activity</a></td>
+                    <td><a href="./index.php?show=repeaters" class="menulink<?php if ($show === 'repeaters') { echo 'active'; } ?>">Connected Stations (<?php echo $Reflector->NodeCount(); ?>)</a></td>
                     <?php
                     if ($PageOptions['Peers']['Show']) {
                         echo '
@@ -155,20 +155,20 @@ if (!$isAjax) {
                         echo '">Links (' . $Reflector->PeerCount() . ')</a></td>';
                     }
                     ?>
-                    <td><a href="./index.php?show=modules" class="menulink<?php if ($show === 'modules') { echo 'active'; } ?>">Módulos Ativos</a></td>
-                    <td><a href="./index.php?show=reflectors" class="menulink<?php if ($show === 'reflectors') { echo 'active'; } ?>">Refletores XLX</a></td>
+                    <td><a href="./index.php?show=modules" class="menulink<?php if ($show === 'modules') { echo 'active'; } ?>">Active Modules</a></td>
+                    <td><a href="./index.php?show=reflectors" class="menulink<?php if ($show === 'reflectors') { echo 'active'; } ?>">XLX Reflectors</a></td>
                     <?php
                     if ($PageOptions['Traffic']['Show']) {
                         echo '
                         <td><a href="./index.php?show=traffic" class="menulink';
                         if ($show === 'traffic') { echo 'active'; }
-                        echo '">Rede</a></td>';
+                        echo '">Network</a></td>';
                     }
                     if ($PageOptions['IRCDDB']['Show']) {
                         echo '
                         <td><a href="./index.php?show=liveircddb" class="menulink';
                         if ($show === 'liveircddb') { echo 'active'; }
-                        echo '">Tráfego</a></td>';
+                        echo '">Traffic</a></td>';
                     }
                     ?>
                 </tr>
@@ -198,9 +198,9 @@ if (!$isAjax) {
         }
         ?>
         <div style="width:100%;text-align:center;margin-top:50px;color:#c3dcba;">
-            <br />Refletor D-Star Multiprotocolo <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
-            | Personalizado por Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
-            <br />Tempo em serviço: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
+            <br />D-Star Multiprotocol Reflector <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
+            | Customized by Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
+            <br />Uptime: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
             <?php echo '<p><a href="https://github.com/PU5KOD/xlxd_installer"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
         </div>
     </div>
