@@ -1,8 +1,8 @@
 <table class="listingtable">
  <tr>
  <th width="60" rowspan="2">Mód.</th>
- <th width="110" rowspan="2">Nome</th>
- <th width="80" rowspan="2">Conexões<br/>ativas</th>
+ <th width="110" rowspan="2">Name</th>
+ <th width="90" rowspan="2">Active<br/>connections</th>
  <th colspan="2">DPlus (REF)</th>
  <th colspan="2">DExtra (XRF)</th>
  <th colspan="2">DCS (DCS/XLX)</th>
