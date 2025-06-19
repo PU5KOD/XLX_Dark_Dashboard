@@ -70,22 +70,22 @@ function VNStatGetData($iface, $vnstat_bin) {
  'daily' => array(),
  'monthly' => array()
  );
- // Executar vnstat sem argumentos para capturar informações gerais
+ // Run vnstat without arguments to capture general information
  $output = shell_exec("$vnstat_bin -i $iface");
  if ($output === null) {
  error_log("Failed to execute vnstat -i $iface");
  return $data;
  }
  $lines = explode("\n", $output);
- // Capturar "Database updated"
+ // Capture "Database updated"
  if (preg_match('/Database updated: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $output, $matches)) {
  $data['database_updated'] = $matches[1];
  }
- // Capturar "since"
+ // Capture "since"
  if (preg_match('/since (\d{4}-\d{2}-\d{2})/', $output, $matches)) {
  $data['since'] = $matches[1];
  }
- // Capturar totais gerais
+ // Capture grand totals
  if (preg_match('/rx:\s+([\d\.]+)\s+([KMGT]iB)\s+tx:\s+([\d\.]+)\s+([KMGT]iB)\s+total:\s+([\d\.]+)\s+([KMGT]iB)/', $output, $matches)) {
  $data['totals']['rx'] = floatval($matches[1]);
  $data['totals']['rx_unit'] = $matches[2];
@@ -94,12 +94,12 @@ function VNStatGetData($iface, $vnstat_bin) {
  $data['totals']['total'] = floatval($matches[5]);
  $data['totals']['total_unit'] = $matches[6];
  }
- // Dados mensais (vnstat -m)
+ // Monthly data (vnstat -m)
  $monthly_output = shell_exec("$vnstat_bin -i $iface -m");
  if ($monthly_output !== null) {
  $monthly_lines = explode("\n", $monthly_output);
  foreach ($monthly_lines as $line) {
- // Dados mensais
+ // Monthly data
  if (preg_match('/(\d{4}-\d{2})\s+([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+(kbit\/s|Mbit\/s)/', $line, $matches)) {
  $date = strtotime($matches[1] . "-01");
  if ($date === false) {
@@ -113,7 +113,7 @@ function VNStatGetData($iface, $vnstat_bin) {
  $total = floatval($matches[6]);
  $total_unit = $matches[7];
  $avg_rate = floatval($matches[8]);
- $avg_rate_unit = $matches[9]; // Capturar a unidade (kbit/s ou Mbit/s)
+ $avg_rate_unit = $matches[9]; // Capture unit (kbit/s or Mbit/s)
  $data['monthly'][] = array(
  'time' => $date,
  'rx' => $rx,
@@ -123,10 +123,10 @@ function VNStatGetData($iface, $vnstat_bin) {
  'total' => $total,
  'total_unit' => $total_unit,
  'avg_rate' => $avg_rate,
- 'avg_rate_unit' => $avg_rate_unit // Armazenar a unidade
+ 'avg_rate_unit' => $avg_rate_unit // Store the unit
  );
  }
- // Valores estimados mensais
+ // Estimated monthly values
  if (preg_match('/estimated\s+([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)/', $line, $matches)) {
  if (!empty($data['monthly'])) {
  $data['monthly'][count($data['monthly']) - 1]['estimated'] = array(
@@ -143,12 +143,12 @@ function VNStatGetData($iface, $vnstat_bin) {
  } else {
  error_log("Failed to retrieve monthly data for interface $iface");
  }
- // Dados diários (vnstat -d)
+ // Daily data (vnstat -d)
  $daily_output = shell_exec("$vnstat_bin -i $iface -d");
  if ($daily_output !== null) {
  $daily_lines = explode("\n", $daily_output);
  foreach ($daily_lines as $line) {
- // Dados diários
+ // Daily data
  if (preg_match('/(\d{4}-\d{2}-\d{2})\s+([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+(kbit\/s|Mbit\/s)/', $line, $matches)) {
  $date = strtotime($matches[1]);
  if ($date === false) {
@@ -162,7 +162,7 @@ function VNStatGetData($iface, $vnstat_bin) {
  $total = floatval($matches[6]);
  $total_unit = $matches[7];
  $avg_rate = floatval($matches[8]);
- $avg_rate_unit = $matches[9]; // Capturar a unidade (kbit/s ou Mbit/s)
+ $avg_rate_unit = $matches[9]; // Capture unit (kbit/s or Mbit/s)
  $data['daily'][] = array(
  'time' => $date,
  'rx' => $rx,
@@ -172,10 +172,10 @@ function VNStatGetData($iface, $vnstat_bin) {
  'total' => $total,
  'total_unit' => $total_unit,
  'avg_rate' => $avg_rate,
- 'avg_rate_unit' => $avg_rate_unit // Armazenar a unidade
+ 'avg_rate_unit' => $avg_rate_unit // Store the unit
  );
  }
- // Valores estimados diários
+ // Estimated daily values
  if (preg_match('/estimated\s+([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)\s*[\|]\s*([\d\.]+)\s+([KMGT]iB)/', $line, $matches)) {
  if (!empty($data['daily'])) {
  $data['daily'][count($data['daily']) - 1]['estimated'] = array(
@@ -194,11 +194,11 @@ function VNStatGetData($iface, $vnstat_bin) {
  }
  return $data;
 }
-// Função para formatar valores de tráfego com suas unidades
+// Function to format traffic values ​​with their units
 function format_traffic($value, $unit) {
- // Arredondar o valor para 2 casas decimais
+ // Round the value to 2 decimal places
  $value = round(floatval($value), 2);
- // Retornar o valor formatado com a unidade
+ // Return the value formatted with the unit
  return "$value $unit";
 }
 ?>
