@@ -19,10 +19,10 @@ $Reflectors = $XML->GetAllElements($Reflectorlist, "reflector");
 <table class="listingtable">
  <tr>
  <th width="40">#</th>
- <th width="80">Refletor</th>
- <th width="200">País de Origem</th>
- <th width="70">Estado</th>
- <th width="400">Descrição</th>
+ <th width="80">Reflector</th>
+ <th width="200">Country of origin</th>
+ <th width="70">State</th>
+ <th width="400">Description</th>
  </tr>
 <?php
 
@@ -41,7 +41,7 @@ for ($i=0;$i<count($Reflectors);$i++) {
  echo '
  <tr height="30" bgcolor="'.$odd.'" onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\''.$odd.'\';">
  <td align="center">'.($i+1).'</td>
- <td align="center"><a href="'.$DASHBOARDURL.'" target="_blank" class="listinglink" title="Clique aqui para visitar dashboard do '.$NAME.'">'.$NAME.'</a></td>
+ <td align="center"><a href="'.$DASHBOARDURL.'" target="_blank" class="listinglink" title="Click here to visit the dashboard of '.$NAME.'">'.$NAME.'</a></td>
  <td>'.$COUNTRY.'</td>
  <td align="center" valign="middle"><img src="./img/'; if ($LASTCONTACT<(time()-1800)) { echo 'down'; } else { echo 'up'; } echo '.png" height="25" /></td>
  <td>'.$COMMENT.'</td>
