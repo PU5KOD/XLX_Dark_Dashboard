@@ -91,27 +91,27 @@ if ($PageOptions['UserPage']['ShowFilter']) {
                     <td align="left">
                         <form name="frmFilterCallSign" method="post" action="./index.php?show=repeaters">
                             <input type="hidden" name="do" value="SetFilter" />
-                            <input type="text" class="FilterField" value="'.$_SESSION['FilterCallSign'].'" name="txtSetCallsignFilter" placeholder="Indicativo" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
-                            <input type="submit" value="Aplicar" class="FilterSubmit" />
+                            <input type="text" class="FilterField" value="'.$_SESSION['FilterCallSign'].'" name="txtSetCallsignFilter" placeholder="Callsign" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
+                            <input type="submit" value="Apply" class="FilterSubmit" />
                         </form>
                     </td>';
     if (($_SESSION['FilterModule'] != null) || ($_SESSION['FilterCallSign'] != null) || ($_SESSION['FilterProtocol'] != null)) {
         echo '
-                    <td><a href="./index.php?show=repeaters&do=resetfilter" class="smalllink">Desativar Filtros</a></td>';
+                    <td><a href="./index.php?show=repeaters&do=resetfilter" class="smalllink">Disable Filters</a></td>';
     }
     echo '
                     <td align="right" style="padding-right:3px;">
                         <form name="frmFilterProtocol" method="post" action="./index.php?show=repeaters">
                             <input type="hidden" name="do" value="SetFilter" />
-                            <input type="text" class="FilterField" value="'.$_SESSION['FilterProtocol'].'" name="txtSetProtocolFilter" placeholder="Protocolo" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
-                            <input type="submit" value="Aplicar" class="FilterSubmit" />
+                            <input type="text" class="FilterField" value="'.$_SESSION['FilterProtocol'].'" name="txtSetProtocolFilter" placeholder="Protocol" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
+                            <input type="submit" value="Apply" class="FilterSubmit" />
                         </form>
                     </td>
                     <td align="right" style="padding-right:3px;">
                         <form name="frmFilterModule" method="post" action="./index.php?show=repeaters">
                             <input type="hidden" name="do" value="SetFilter" />
-                            <input type="text" class="FilterField" value="'.$_SESSION['FilterModule'].'" name="txtSetModuleFilter" placeholder="Módulo" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
-                            <input type="submit" value="Aplicar" class="FilterSubmit" />
+                            <input type="text" class="FilterField" value="'.$_SESSION['FilterModule'].'" name="txtSetModuleFilter" placeholder="Module" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, '.$PageOptions['PageRefreshDelay'].');" />
+                            <input type="submit" value="Apply" class="FilterSubmit" />
                         </form>
                     </td>
                 </tr>
@@ -123,18 +123,18 @@ if ($PageOptions['UserPage']['ShowFilter']) {
 ?>
     <tr>
         <th width="30">#</th>
-        <th width="40">País</th>
+        <th width="40">Country</th>
         <th width="100">Gateway</th>
-        <th width="220">Operador</th>
-        <th width="170">Última Atividade</th>
-        <th width="120">Duração</th>
-        <th width="100">Protocolo</th>
-        <th width="60">Módulo</th>
+        <th width="220">Operator</th>
+        <th width="170">Last Activity</th>
+        <th width="120">Duration</th>
+        <th width="100">Protocol</th>
+        <th width="60">Module</th>
         <?php
 
 if ($PageOptions['RepeatersPage']['IPModus'] != 'HideIP') {
     echo '
-        <th width="140">IP da Estação</th>';
+        <th width="140">Station IP</th>';
 }
 
 ?>
@@ -184,13 +184,13 @@ for ($i=0;$i<$Reflector->NodeCount();$i++) {
             <td align="center">';
         $FullCallsign = $Reflector->Nodes[$i]->GetCallSign();
         $Suffix = $Reflector->Nodes[$i]->GetSuffix();
-        echo '<a href="https://www.qrz.com/db/'.$FullCallsign.'" class="pl" title="Clique aqui para consultar o QRZ da estação" target="_blank">'.$FullCallsign.'</a>';
+        echo '<a href="https://www.qrz.com/db/'.$FullCallsign.'" class="pl" title="Click here to check the station on QRZ" target="_blank">'.$FullCallsign.'</a>';
         if ($Suffix) {
             echo ' - <i>'.$Suffix.'</i>';
         }
         echo '</td>
             <td align="center">';
-        // Buscar nome do banco
+        // Fetch database name
         $callsign = $Reflector->Nodes[$i]->GetCallSign();
         $userInfo = getUserData($callsign);
         echo $userInfo['name'];
