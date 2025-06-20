@@ -1,6 +1,6 @@
 <table class="listingtable">
  <tr>
- <th width="60" rowspan="2">Mód.</th>
+ <th width="60" rowspan="2">Mod.</th>
  <th width="110" rowspan="2">Name</th>
  <th width="90" rowspan="2">Active<br/>connections</th>
  <th colspan="2">DPlus (REF)</th>
