@@ -97,7 +97,7 @@ setlocale(LC_TIME, 'en.UTF-8', 'en', 'english');
     echo '
     <table style="' . $tableStyle . '">
         <tr>
-            <th style="' . $thStyle . '" colspan="5">Daily Data</th>
+            <th style="' . $thStyle . '" colspan="5">Daily Data - Last 30 Days</th>
             <th style="' . $thStyle . '" colspan="3">Estimated Values</th>
         </tr>
         <tr>
