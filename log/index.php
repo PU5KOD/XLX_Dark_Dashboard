@@ -1,26 +1,26 @@
 <?php
 session_start();
 
-// Configuração da senha
+// Password setup
 if (isset($_POST['password'])) {
    $_SESSION['password'] = $_POST['password'];
 }
 
-// Configuração do tempo de recarga
-$reload_time = 10000; // Valor padrão: 10 segundos (em milissegundos)
+// Cooldown time setting
+$reload_time = 5000; // Default value: 5 seconds (in milliseconds)
 if (isset($_POST['reload_time']) && is_numeric($_POST['reload_time']) && $_POST['reload_time'] >= 1) {
-   $_SESSION['reload_time'] = (int)$_POST['reload_time'] * 1000; // Converte segundos para milissegundos
+   $_SESSION['reload_time'] = (int)$_POST['reload_time'] * 1000; // Convert seconds to milliseconds
 }
 if (isset($_SESSION['reload_time'])) {
    $reload_time = $_SESSION['reload_time'];
 }
 
-// Limpar o log acumulado
+// Clear the accumulated log
 if (isset($_POST['clear_log'])) {
    $_SESSION['log_content'] = [];
 }
 
-// Verificação da senha
+// Password verification
 if (isset($_SESSION['password'])) {
    if ($_SESSION['password'] != "XLX_log") {
       echo '
@@ -65,30 +65,30 @@ if (isset($_SESSION['password'])) {
          margin-bottom: 20px;
       }
       .header h1 {
-         font-size: 32px; /* Tamanho maior para o título */
+         font-size: 32px; /* Larger size for title */
          color: #c3dcba;
          margin: 0;
-         padding: 15px 0; /* Ajustado para equilibrar */
+         padding: 15px 0; /* Adjusted to balance */
          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-         background: linear-gradient(to right, #c3dcba, #a3b25a); /* Gradiente no título */
-         -webkit-background-clip: text; /* Aplica o gradiente apenas ao texto */
+         background: linear-gradient(to right, #c3dcba, #a3b25a); /* Untitled Gradient */
+         -webkit-background-clip: text; /* Applies the gradient to text only */
          background-clip: text;
-         color: transparent; /* Torna o texto transparente para o gradiente aparecer */
+         color: transparent; /* Make text transparent so gradient shows through */
       }
       .controls {
          display: flex;
          gap: 10px;
          align-items: center;
          margin-bottom: 15px;
-         flex-wrap: nowrap; /* Impede a quebra de linha */
-         justify-content: space-between; /* Alinha os elementos com espaço uniforme */
+         flex-wrap: nowrap; /* Prevents line breaks */
+         justify-content: space-between; /* Aligns elements with even spacing */
       }
       .control-group {
          display: flex;
          gap: 10px;
          align-items: center;
-         flex-shrink: 0; /* Impede que os grupos encolham demais */
-         white-space: nowrap; /* Garante que os elementos internos fiquem em uma linha */
+         flex-shrink: 0; /* Prevents groups from shrinking too much */
+         white-space: nowrap; /* Ensures that inner elements are in a row */
       }
       input[type="number"], input[type="text"] {
          padding: 5px;
@@ -98,10 +98,10 @@ if (isset($_SESSION['password'])) {
          border-radius: 3px;
       }
       input#reload_time_input {
-         width: 50px; /* Largura reduzida para o campo de tempo de recarga */
+         width: 50px; /* Reduced width for cooldown field */
       }
       input#filter_input {
-         width: 130px; /* Largura aumentada para o campo de filtro */
+         width: 130px; /* Increased width for filter field */
       }
       button, input[type="button"], input[type="submit"] {
          padding: 5px 10px;
@@ -119,11 +119,11 @@ if (isset($_SESSION['password'])) {
          background-color: #444444;
       }
       button#pause_button.paused {
-         background-color: #a3b25a; /* Cor destacada para o botão pausado */
-         color: #1a1a1a; /* Contraste com o fundo escuro */
+         background-color: #a3b25a; /* Highlighted color for paused button */
+         color: #1a1a1a; /* Contrast with the dark background */
       }
       button i {
-         font-size: 14px; /* Tamanho consistente para os ícones */
+         font-size: 14px; /* Consistent size for icons */
       }
       label {
          color: #c3dcba;
@@ -157,13 +157,13 @@ if (isset($_SESSION['password'])) {
       .log-warning {
          color: #ff9900;
       }
-      /* Media query para telas menores */
+      /* Media query for smaller screens */
       @media (max-width: 600px) {
          .controls {
-            flex-wrap: wrap; /* Permite quebra de linha em telas pequenas */
+            flex-wrap: wrap; /* Allows line breaks on small screens */
          }
          .control-group {
-            flex-basis: 100%; /* Cada grupo ocupa 100% da largura */
+            flex-basis: 100%; /* Each group occupies 100% of the width */
          }
       }
    </style>
@@ -171,7 +171,7 @@ if (isset($_SESSION['password'])) {
       let reloadInterval;
       let isPaused = false;
 
-      // Função de debounce
+      // Debounce function
       function debounce(func, wait) {
          let timeout;
          return function executedFunction(...args) {
@@ -215,8 +215,8 @@ if (isset($_SESSION['password'])) {
                logContent.scrollTop = 0;
             })
             .catch(error => {
-               console.error('Erro ao buscar log:', error);
-               document.getElementById('log_content').textContent = 'Erro ao carregar o log.';
+               console.error('Error fetching log:', error);
+               document.getElementById('log_content').textContent = 'Error loading log.';
             });
       }
 
@@ -233,9 +233,9 @@ if (isset($_SESSION['password'])) {
             .then(() => {
                startLogUpdate(reloadTimeInput * 1000);
             })
-            .catch(error => console.error('Erro ao atualizar tempo:', error));
+            .catch(error => console.error('Error updating time:', error));
          } else {
-            alert('Por favor, insira um valor maior ou igual a 1.');
+            alert('Please enter a value greater than or equal to 1.');
          }
       }
 
@@ -246,13 +246,13 @@ if (isset($_SESSION['password'])) {
          if (isPaused) {
             clearInterval(reloadInterval);
             pauseButton.innerHTML = '<i class="fas fa-play"></i> Retomar';
-            pauseButton.classList.add('paused'); // Adiciona a classe paused ao botão
+            pauseButton.classList.add('paused'); // Adds the paused class to the button
             logContent.classList.add('paused');
          } else {
             const reloadTime = document.getElementById('reload_time_input').value * 1000;
             startLogUpdate(reloadTime);
             pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pausar';
-            pauseButton.classList.remove('paused'); // Remove a classe paused do botão
+            pauseButton.classList.remove('paused'); // Remove the paused class from the button
             logContent.classList.remove('paused');
          }
       }
@@ -266,7 +266,7 @@ if (isset($_SESSION['password'])) {
             body: formData
          })
          .then(() => fetchLog())
-         .catch(error => console.error('Erro ao limpar log:', error));
+         .catch(error => console.error('Error clearing log:', error));
       }
 
       function exportLog() {
@@ -275,7 +275,7 @@ if (isset($_SESSION['password'])) {
 
       window.onload = () => {
          startLogUpdate(<?php echo $reload_time; ?>);
-         // Aplica debounce ao evento de filtro com 300ms de atraso
+         // Debounces the filter event with a 300ms delay
          const debouncedFetchLog = debounce(fetchLog, 500);
          document.getElementById('filter_input').oninput = debouncedFetchLog;
       };
@@ -288,22 +288,22 @@ if (isset($_SESSION['password'])) {
       </div>
       <div class="controls">
          <div class="control-group">
-            <label for="reload_time_input">Tempo de recarga (segundos):</label>
+            <label for="reload_time_input">Reload time (seconds):</label>
             <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" step="1" />
-            <button type="button" onclick="UpdateReloadTime()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+            <button type="button" onclick="UpdateReloadTime()"><i class="fas fa-sync-alt"></i> Update</button>
          </div>
          <div class="control-group">
-            <label for="filter_input">Filtrar log:</label>
+            <label for="filter_input">Filter log:</label>
             <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" />
          </div>
          <div class="control-group">
-            <button id="pause_button" onclick="togglePause()"><i class="fas fa-pause"></i> Pausar</button>
-            <button onclick="clearLog()"><i class="fas fa-trash"></i> Limpar Log</button>
-            <button onclick="exportLog()"><i class="fas fa-download"></i> Exportar Log</button>
+            <button id="pause_button" onclick="togglePause()"><i class="fas fa-pause"></i> Pause</button>
+            <button onclick="clearLog()"><i class="fas fa-trash"></i> Clear Log</button>
+            <button onclick="exportLog()"><i class="fas fa-download"></i> Export Log</button>
          </div>
       </div>
       <div id="log_content">
-         Carregando log...
+         Loading log...
       </div>
    </div>
 </body>
