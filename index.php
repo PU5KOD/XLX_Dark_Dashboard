@@ -198,8 +198,8 @@ if (!$isAjax) {
         }
         ?>
         <div style="width:100%;text-align:center;margin-top:50px;color:#c3dcba;">
-            <br />D-Star Multiprotocol Reflector <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
-            | Customized by Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD">PU5KOD</a></b>
+            <br /><a href="./log/index.php" style="text-decoration: none; color: inherit;">D-Star</a> Multiprotocol Reflector <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
+            | Customized by Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD" style="text-decoration: none;">PU5KOD</a></b>
             <br />Uptime: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
             <?php echo '<p><a href="https://github.com/PU5KOD/xlxd_installer"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
         </div>
