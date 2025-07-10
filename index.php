@@ -201,7 +201,7 @@ if (!$isAjax) {
             <br /><a href="./log/index.php" style="text-decoration: none; color: inherit;">D-Star</a> Multiprotocol Reflector <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?>
             | Customized by Daniel K. <b><a href="https://www.qrz.com/db/PU5KOD" style="text-decoration: none;">PU5KOD</a></b>
             <br />Uptime: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
-            <?php echo '<p><a href="https://github.com/PU5KOD/xlxd_installer"><center><img src="./img/debian_powered.jpg" width="100"></center></a></p>';?>
+            <?php echo '<p><a href="https://github.com/PU5KOD/XLX_Installer"><center><img src="./img/Debian_white.png" width="50"></center></a></p>';?>
         </div>
     </div>
 <?php
