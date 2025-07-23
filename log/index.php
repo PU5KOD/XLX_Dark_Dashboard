@@ -167,11 +167,11 @@ if (isset($_SESSION['password'])) {
          }
       }
       .back-button {
-          margin-top: 10px; /* Espaço entre o quadro de log e o botão */
-          text-align: left; /* Alinha o botão à esquerda */
+          margin-top: 10px; /* Space between log frame and button */
+          text-align: left; /* Align the button to the the left */
       }
       .back-link {
-          text-decoration: none; /* Remove o sublinhado do link */
+          text-decoration: none; /* Remove underline from link */
       }
       .back-link button {
           padding: 5px 10px;
