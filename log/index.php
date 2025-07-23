@@ -166,6 +166,28 @@ if (isset($_SESSION['password'])) {
             flex-basis: 100%; /* Each group occupies 100% of the width */
          }
       }
+      .back-button {
+          margin-top: 10px; /* Espaço entre o quadro de log e o botão */
+          text-align: left; /* Alinha o botão à esquerda */
+      }
+      .back-link {
+          text-decoration: none; /* Remove o sublinhado do link */
+      }
+      .back-link button {
+          padding: 5px 10px;
+          background-color: #333333;
+          color: #c3dcba;
+          border: 1px solid #444444;
+          border-radius: 3px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+      }
+     .back-link button:hover {
+          background-color: #444444;
+      }
    </style>
    <script>
       let reloadInterval;
@@ -304,6 +326,9 @@ if (isset($_SESSION['password'])) {
       </div>
       <div id="log_content">
          Loading log...
+      </div>
+      <div class="back-button">
+        <a href="../index.php" class="back-link"><button><i class="fas fa-arrow-left"></i> Voltar</button></a>
       </div>
    </div>
 </body>
