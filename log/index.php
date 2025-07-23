@@ -310,25 +310,25 @@ if (isset($_SESSION['password'])) {
       </div>
       <div class="controls">
          <div class="control-group">
-            <label for="reload_time_input">Reload time (seconds):</label>
+            <label for="reload_time_input">Reload time (sec.):</label>
             <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" step="1" />
             <button type="button" onclick="UpdateReloadTime()"><i class="fas fa-sync-alt"></i> Update</button>
          </div>
          <div class="control-group">
-            <label for="filter_input">Filter log:</label>
+            <label for="filter_input">Filter:</label>
             <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" />
          </div>
          <div class="control-group">
             <button id="pause_button" onclick="togglePause()"><i class="fas fa-pause"></i> Pause</button>
-            <button onclick="clearLog()"><i class="fas fa-trash"></i> Clear Log</button>
-            <button onclick="exportLog()"><i class="fas fa-download"></i> Export Log</button>
+            <button onclick="clearLog()"><i class="fas fa-trash"></i> Clear</button>
+            <button onclick="exportLog()"><i class="fas fa-download"></i> Export</button>
          </div>
       </div>
       <div id="log_content">
          Loading log...
       </div>
       <div class="back-button">
-        <a href="../index.php" class="back-link"><button><i class="fas fa-arrow-left"></i> Voltar</button></a>
+        <a href="../index.php" class="back-link"><button><i class="fas fa-arrow-left"></i> Back</button></a>
       </div>
    </div>
 </body>
