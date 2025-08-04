@@ -94,9 +94,14 @@ if (!$isAjax) {
     <meta name="revisit" content="' . htmlspecialchars($PageOptions['MetaRevisit']) . '">
     <meta name="robots" content="' . htmlspecialchars($PageOptions['MetaAuthor']) . '">
     <meta name="viewport" content="width=device-width, initial-scale=0.38">
+    <meta name="apple-mobile-web-app-title" content="XLX300 by PU5KOD" />
     <title>' . htmlspecialchars($Reflector->GetReflectorName()) . ' Reflector Dashboard</title>
     <link rel="stylesheet" type="text/css" href="./css/layout.css">
-    <link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon">';
+    <link rel="icon" type="image/png" href="./img/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="./img/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="./img/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="./img/favicon/site.webmanifest" />';
 
     if ($PageOptions['PageRefreshActive']) {
         echo '
