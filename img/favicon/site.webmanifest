@@ -1,6 +1,6 @@
 {
-  "name": "XLX300 Reflector Dashboard",
-  "short_name": "XLX300",
+  "name": "XLX Reflector Dashboard",
+  "short_name": "XLX",
   "icons": [
     {
       "src": "./img/favicon/web-app-manifest-192x192.png",
