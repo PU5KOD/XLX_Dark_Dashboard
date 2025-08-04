@@ -1,0 +1,21 @@
+{
+  "name": "XLX300 Reflector Dashboard",
+  "short_name": "XLX300",
+  "icons": [
+    {
+      "src": "./img/favicon/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./img/favicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#333333",
+  "background_color": "#222222",
+  "display": "standalone"
+}
