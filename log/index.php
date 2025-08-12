@@ -134,8 +134,8 @@ if (isset($_SESSION['password'])) {
          padding: 10px;
          max-height: 600px;
          overflow-y: auto;
-         font-family: 'Courier New', monospace;
-         font-size: 13px;
+         font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+         font-size: 7px;
          line-height: 1.2;
          white-space: pre-wrap;
          border: 2px solid #444444;
