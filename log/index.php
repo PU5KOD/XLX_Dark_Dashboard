@@ -46,6 +46,9 @@ if (isset($_SESSION['password'])) {
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
    <title>XLX Live Log Monitor</title>
+<!-- Fontes monoespacadas do Google Fonts -->
+   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&display=swap" rel="stylesheet">
+<!-- Fonte Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
    <style>
       body {
@@ -134,7 +137,7 @@ if (isset($_SESSION['password'])) {
          padding: 10px;
          max-height: 600px;
          overflow-y: auto;
-         font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+         font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Roboto Mono', monospace;
          font-size: 7px;
          line-height: 1.2;
          white-space: pre-wrap;
