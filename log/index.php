@@ -29,7 +29,7 @@ if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token
 }
 // Password verification
 if (isset($_SESSION['password'])) {
-   if ($_SESSION['password'] != "WhrebeVerde") {
+   if ($_SESSION['password'] != "XLX_log") {
       echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
@@ -52,7 +52,7 @@ if (isset($_SESSION['password'])) {
    <meta charset="utf-8" />
    <title>XLX Live Log Monitor</title>
 
-   <!-- Monospace fonts -->
+   <!-- Monospace Google fonts -->
    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&family=JetBrains+Mono&family=Inconsolata&family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
    <!-- Font Awesome -->
