@@ -190,11 +190,11 @@ if (isset($_SESSION['password'])) {
       }
       #increment_btn {
          top: 2px;
-         right: 18px;
+         right: 20px;
       }
       #decrement_btn {
          bottom: 2px;
-         right: 18px;
+         right: 20px;
       }
       #increment_btn:hover, #decrement_btn:hover, #reload_time_btn:hover {
          color: #a3b25a;
