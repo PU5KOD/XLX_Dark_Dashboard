@@ -29,7 +29,7 @@ if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token
 }
 // Password verification
 if (isset($_SESSION['password'])) {
-   if ($_SESSION['password'] != "XLX_log") {
+   if ($_SESSION['password'] != "WhrebeVerde") {
       echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
@@ -121,6 +121,8 @@ if (isset($_SESSION['password'])) {
       input#reload_time_input {
          width: 50px;
          padding-right: 28px;
+         padding-top: 2px;
+         padding-bottom: 2px;
       }
       input#filter_input {
          padding-right: 25px;
@@ -166,25 +168,37 @@ if (isset($_SESSION['password'])) {
       #clear_filter_button:focus {
          outline: none;
       }
-      #reload_time_btn {
+      #reload_time_btn, #increment_btn, #decrement_btn {
          position: absolute;
-         right: 5px;
-         top: 50%;
-         transform: translateY(-50%);
+         right: 2px;
          background: transparent;
          border: none;
          color: #c3dcba;
          cursor: pointer;
          padding: 0;
-         font-size: 16px;
+         font-size: 12px;
          display: flex;
          align-items: center;
          justify-content: center;
+         width: 20px;
+         height: 12px;
       }
-      #reload_time_btn:hover {
+      #reload_time_btn {
+         top: 50%;
+         transform: translateY(-50%);
+      }
+      #increment_btn {
+         top: 2px;
+         right: 18px;
+      }
+      #decrement_btn {
+         bottom: 2px;
+         right: 18px;
+      }
+      #increment_btn:hover, #decrement_btn:hover, #reload_time_btn:hover {
          color: #a3b25a;
       }
-      #reload_time_btn:focus {
+      #increment_btn:focus, #decrement_btn:focus, #reload_time_btn:focus {
          outline: none;
       }
       #log_content {
@@ -354,6 +368,15 @@ if (isset($_SESSION['password'])) {
          }
       }
 
+      // Increment or decrement reload time
+      function adjustReloadTime(amount) {
+         const reloadTimeInput = document.getElementById('reload_time_input');
+         let value = parseInt(reloadTimeInput.value) || 0;
+         value = Math.max(1, value + amount); // Ensure minimum value is 1
+         reloadTimeInput.value = value;
+         UpdateReloadTime(); // Update the reload interval immediately
+      }
+
       // Toggle pause/resume for log updates
       function togglePause() {
          isPaused = !isPaused;
@@ -426,6 +449,10 @@ if (isset($_SESSION['password'])) {
 
          const reloadBtn = document.getElementById('reload_time_btn');
          reloadBtn.addEventListener('click', UpdateReloadTime);
+
+         // Add event listeners for increment and decrement buttons
+         document.getElementById('increment_btn').addEventListener('click', () => adjustReloadTime(1));
+         document.getElementById('decrement_btn').addEventListener('click', () => adjustReloadTime(-1));
       };
    </script>
 </head>
@@ -442,6 +469,12 @@ if (isset($_SESSION['password'])) {
          <div class="control-group reload-time-container">
             <label for="reload_time_input">Reload (s):</label>
             <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" aria-label="Reload time in seconds" />
+            <button type="button" id="increment_btn" title="Increment" aria-label="Increase reload time">
+               <i class="fas fa-arrow-up"></i>
+            </button>
+            <button type="button" id="decrement_btn" title="Decrement" aria-label="Decrease reload time">
+               <i class="fas fa-arrow-down"></i>
+            </button>
             <button type="button" id="reload_time_btn" title="Update" aria-label="Update reload time">
                <i class="fas fa-sync-alt"></i>
             </button>
