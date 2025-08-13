@@ -1,38 +1,38 @@
 <?php
 session_start();
-session_set_cookie_params(3600); // Expira em 1 hora
+session_set_cookie_params(3600); // Session expires in 1 hour
 if (!isset($_SESSION['csrf_token'])) {
    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Configuração da senha
+// Password setup
 if (isset($_POST['password'])) {
    $_SESSION['password'] = $_POST['password'];
 }
-// Configuração do tempo de recarga
+// Reload time setting
 $reload_time = 5000;
 if (isset($_POST['reload_time']) && is_numeric($_POST['reload_time']) && $_POST['reload_time'] >= 1) {
    if ($_POST['csrf_token'] === $_SESSION['csrf_token']) {
       $_SESSION['reload_time'] = (int)$_POST['reload_time'] * 1000;
    } else {
-      die('CSRF token inválido');
+      die('Invalid CSRF token');
    }
 }
 if (isset($_SESSION['reload_time'])) {
    $reload_time = $_SESSION['reload_time'];
 }
-// Limpar log acumulado
+// Clear accumulated log
 if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
    $_SESSION['log_content'] = [];
 } elseif (isset($_POST['clear_log'])) {
-   die('CSRF token inválido');
+   die('Invalid CSRF token');
 }
-// Verificação da senha
+// Password verification
 if (isset($_SESSION['password'])) {
    if ($_SESSION['password'] != "XLX_log") {
       echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
-         <input type="submit" value="Entrar" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
+         <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
          <input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">
       </form>';
       die();
@@ -40,7 +40,7 @@ if (isset($_SESSION['password'])) {
 } else {
    echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
-         <input type="submit" value="Entrar" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
+         <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
          <input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">
       </form>';
    die();
@@ -52,14 +52,14 @@ if (isset($_SESSION['password'])) {
    <meta charset="utf-8" />
    <title>XLX Live Log Monitor</title>
 
-   <!-- Fontes monoespacadas -->
+   <!-- Monospace fonts -->
    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&family=JetBrains+Mono&family=Inconsolata&family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
    <!-- Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
 
    <style>
-      /* Para manutenção, considere mover o CSS para um arquivo externo (ex.: styles.css) */
+      /* For maintenance, consider moving CSS to an external file (e.g., styles.css) */
       body {
          background-color: #1a1a1a;
          color: #c3dcba;
@@ -149,7 +149,7 @@ if (isset($_SESSION['password'])) {
       #clear_filter_button {
          position: absolute;
          right: 5px;
-         top: 50%;
+         top: 40%;
          transform: translateY(-50%);
          background: transparent;
          border: none;
@@ -178,8 +178,6 @@ if (isset($_SESSION['password'])) {
          padding: 0;
          font-size: 16px;
          display: flex;
-         align-itemsグロ
-
          align-items: center;
          justify-content: center;
       }
@@ -283,6 +281,7 @@ if (isset($_SESSION['password'])) {
       let isPaused = false;
       let autoScroll = true;
 
+      // Debounce function to limit frequent calls
       function debounce(func, wait) {
          let timeout;
          return function(...args) {
@@ -291,6 +290,7 @@ if (isset($_SESSION['password'])) {
          };
       }
 
+      // Start periodic log updates
       function startLogUpdate(reloadTime) {
          if (reloadInterval) clearInterval(reloadInterval);
          if (!isPaused) {
@@ -299,16 +299,17 @@ if (isset($_SESSION['password'])) {
          }
       }
 
+      // Fetch log content from server
       function fetchLog() {
          const filter = document.getElementById('filter_input').value;
          fetch('fetch_log.php?filter=' + encodeURIComponent(filter))
             .then(response => {
-               if (!response.ok) throw new Error('Falha ao carregar o log');
+               if (!response.ok) throw new Error('Failed to load log');
                return response.text();
             })
             .then(data => {
                const logContent = document.getElementById('log_content');
-               if (data.startsWith('Erro:')) {
+               if (data.startsWith('Error:')) {
                   logContent.textContent = data;
                   return;
                }
@@ -327,11 +328,12 @@ if (isset($_SESSION['password'])) {
                if (autoScroll) logContent.scrollTop = 0;
             })
             .catch(error => {
-               console.error('Erro ao carregar log:', error);
-               document.getElementById('log_content').textContent = 'Erro ao carregar o log. Tente novamente.';
+               console.error('Error loading log:', error);
+               document.getElementById('log_content').textContent = 'Error loading log. Please try again.';
             });
       }
 
+      // Update reload time
       function UpdateReloadTime() {
          const reloadTimeInput = document.getElementById('reload_time_input').value;
          if (reloadTimeInput && !isNaN(reloadTimeInput) && reloadTimeInput >= 1) {
@@ -340,36 +342,38 @@ if (isset($_SESSION['password'])) {
             formData.append('csrf_token', '<?php echo $_SESSION['csrf_token']; ?>');
             fetch('./index.php', { method: 'POST', body: formData })
                .then(response => {
-                  if (!response.ok) throw new Error('Falha ao atualizar tempo');
+                  if (!response.ok) throw new Error('Failed to update reload time');
                   startLogUpdate(reloadTimeInput * 1000);
                })
                .catch(error => {
-                  console.error('Erro ao atualizar tempo:', error);
-                  alert('Erro ao atualizar tempo de recarga.');
+                  console.error('Error updating reload time:', error);
+                  alert('Error updating reload time.');
                });
          } else {
-            alert('Por favor, insira um valor numérico maior ou igual a 1.');
+            alert('Please enter a numeric value greater than or equal to 1.');
          }
       }
 
+      // Toggle pause/resume for log updates
       function togglePause() {
          isPaused = !isPaused;
          const pauseButton = document.getElementById('pause_button');
          const logContent = document.getElementById('log_content');
          if (isPaused) {
             clearInterval(reloadInterval);
-            pauseButton.innerHTML = '<i class="fas fa-play"></i> Retomar';
+            pauseButton.innerHTML = '<i class="fas fa-play"></i> Resume';
             pauseButton.classList.add('paused');
             logContent.classList.add('paused');
          } else {
             const reloadTime = document.getElementById('reload_time_input').value * 1000;
             startLogUpdate(reloadTime);
-            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pausar';
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
             pauseButton.classList.remove('paused');
             logContent.classList.remove('paused');
          }
       }
 
+      // Clear log content
       function clearLog() {
          const formData = new FormData();
          formData.append('clear_log', true);
@@ -377,20 +381,23 @@ if (isset($_SESSION['password'])) {
          fetch('./index.php', { method: 'POST', body: formData })
             .then(() => fetchLog())
             .catch(error => {
-               console.error('Erro ao limpar log:', error);
-               document.getElementById('log_content').textContent = 'Erro ao limpar o log.';
+               console.error('Error clearing log:', error);
+               document.getElementById('log_content').textContent = 'Error clearing log.';
             });
       }
 
+      // Export log to file
       function exportLog() {
          window.location.href = 'export_log.php?csrf_token=<?php echo $_SESSION['csrf_token']; ?>';
       }
 
+      // Toggle auto-scroll for log content
       function toggleAutoScroll() {
          autoScroll = !autoScroll;
-         document.getElementById('scroll_toggle').innerHTML = '<i class="fas fa-scroll"></i> ' + (autoScroll ? 'Desativar Auto-Scroll' : 'Ativar Auto-Scroll');
+         document.getElementById('scroll_toggle').innerHTML = '<i class="fas fa-scroll"></i> ' + (autoScroll ? 'Disable Auto-Scroll' : 'Enable Auto-Scroll');
       }
 
+      // Initialize on page load
       window.onload = () => {
          startLogUpdate(<?php echo $reload_time; ?>);
          const filterInput = document.getElementById('filter_input');
@@ -434,48 +441,48 @@ if (isset($_SESSION['password'])) {
       <div class="controls">
          <div class="control-group reload-time-container">
             <label for="reload_time_input">Reload (s):</label>
-            <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" aria-label="Tempo de recarga em segundos" />
-            <button type="button" id="reload_time_btn" title="Atualizar" aria-label="Atualizar tempo de recarga">
+            <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" aria-label="Reload time in seconds" />
+            <button type="button" id="reload_time_btn" title="Update" aria-label="Update reload time">
                <i class="fas fa-sync-alt"></i>
             </button>
          </div>
 
          <div class="control-group" style="position: relative;">
-            <label for="filter_input" style="margin-right: 5px;">Filtro:</label>
-            <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" aria-label="Filtrar logs" />
-            <button id="clear_filter_button" title="Limpar filtro" aria-label="Limpar filtro">×</button>
+            <label for="filter_input" style="margin-right: 5px;">Filter:</label>
+            <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" aria-label="Filter logs" />
+            <button id="clear_filter_button" title="Clear filter" aria-label="Clear filter">×</button>
          </div>
 
          <div class="control-group">
-            <button id="pause_button" onclick="togglePause()" aria-label="Pausar atualização do log"><i class="fas fa-pause"></i> Pausar</button>
-            <button onclick="clearLog()" aria-label="Limpar log"><i class="fas fa-trash"></i> Limpar</button>
-            <button onclick="exportLog()" aria-label="Exportar log"><i class="fas fa-download"></i> Exportar</button>
-            <button onclick="toggleAutoScroll()" id="scroll_toggle" aria-label="Alternar auto-scroll"><i class="fas fa-scroll"></i> Desativar Auto-Scroll</button>
+            <button id="pause_button" onclick="togglePause()" aria-label="Pause log updates"><i class="fas fa-pause"></i> Pause</button>
+            <button onclick="clearLog()" aria-label="Clear log"><i class="fas fa-trash"></i> Clear</button>
+            <button onclick="exportLog()" aria-label="Export log"><i class="fas fa-download"></i> Export</button>
+            <button onclick="toggleAutoScroll()" id="scroll_toggle" aria-label="Toggle auto-scroll"><i class="fas fa-scroll"></i> Disable Auto-Scroll</button>
          </div>
       </div>
 
-      <div id="log_content" aria-live="polite">Carregando log...</div>
+      <div id="log_content" aria-live="polite">Loading log...</div>
 
       <div class="log-footer">
          <div class="back-link">
-            <a href="../index.php" class="back-link-button" aria-label="Voltar para a página inicial">
-               <i class="fas fa-arrow-left"></i> Voltar
+            <a href="../index.php" class="back-link-button" aria-label="Return to main page">
+               <i class="fas fa-arrow-left"></i> Back
             </a>
          </div>
          <div class="font-size-group">
-            <label for="font_select">Fonte:</label>
-            <select id="font_select" class="font-selector" aria-label="Selecionar fonte do log">
+            <label for="font_select">Font:</label>
+            <select id="font_select" class="font-selector" aria-label="Select log font">
                <option value="'Fira Code', monospace">Fira Code</option>
                <option value="'Source Code Pro', monospace">Source Code Pro</option>
                <option value="'Roboto Mono', monospace">Roboto Mono</option>
                <option value="'JetBrains Mono', monospace" selected>JetBrains Mono</option>
                <option value="'Inconsolata', monospace">Inconsolata</option>
                <option value="'Ubuntu Mono', monospace">Ubuntu Mono</option>
-               <option value="'monospace'">Monospace padrão</option>
+               <option value="'monospace'">Default Monospace</option>
             </select>
 
-            <label for="font_size_select" style="margin-left: 15px;">Tamanho:</label>
-            <select id="font_size_select" class="size-selector" aria-label="Selecionar tamanho da fonte">
+            <label for="font_size_select" style="margin-left: 15px;">Size:</label>
+            <select id="font_size_select" class="size-selector" aria-label="Select font size">
                <option value="7">7 px</option>
                <option value="8">8 px</option>
                <option value="9">9 px</option>
