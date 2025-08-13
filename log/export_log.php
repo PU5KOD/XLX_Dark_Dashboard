@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-// Verificação da sessão
-if (!isset($_SESSION['password']) || $_SESSION['password'] != XLX_log") {
-    $_SESSION['error'] = "Acesso negado. Por favor, faça login.";
+// Session verification
+if (!isset($_SESSION['password']) || $_SESSION['password'] != "XLX_log") {
+    $_SESSION['error'] = "Access denied. Please log in.";
     header('Location: index.php');
     exit();
 }
 
-// Opcional: Verificar token CSRF via GET (se passado pelo index.php)
+// Optional: Verify CSRF token via GET
 if (isset($_GET['csrf_token']) && $_GET['csrf_token'] !== $_SESSION['csrf_token']) {
-    $_SESSION['error'] = "Token CSRF inválido.";
+    $_SESSION['error'] = "Invalid CSRF token.";
     header('Location: index.php');
     exit();
 }
@@ -19,7 +19,7 @@ $logFile = '/var/log/xlx.log';
 $exportFile = 'xlx_log_export_' . date('Ymd_His') . '.txt';
 
 if (file_exists($logFile) && is_readable($logFile)) {
-    // Escapar o nome do arquivo para evitar problemas em headers
+    // Escape filename to prevent issues in headers
     $exportFile = str_replace(["\r", "\n", "\"", "'"], '', $exportFile);
     
     header('Content-Type: text/plain; charset=utf-8');
@@ -28,7 +28,7 @@ if (file_exists($logFile) && is_readable($logFile)) {
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    // Ler arquivo em chunks para eficiência (melhor para logs grandes)
+    // Read file in chunks for efficiency
     $file = new SplFileObject($logFile, 'r');
     $lines = [];
     while (!$file->eof()) {
@@ -37,12 +37,12 @@ if (file_exists($logFile) && is_readable($logFile)) {
             $lines[] = trim($line);
         }
     }
-    $file = null; // Fechar o arquivo
+    $file = null; // Close file
     echo implode("\n", array_reverse($lines));
 } else {
-    // Logar erro no servidor para debug
-    error_log("Erro ao acessar log em $logFile: " . (file_exists($logFile) ? 'Permissão negada' : 'Arquivo não encontrado'));
-    $_SESSION['error'] = "Erro: Não foi possível acessar o log para exportação.";
+    // Log error for debugging
+    error_log("Error accessing log at $logFile: " . (file_exists($logFile) ? 'Permission denied' : 'File not found'));
+    $_SESSION['error'] = "Error: Unable to access log for export.";
     header('Location: index.php');
     exit();
 }
