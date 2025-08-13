@@ -1,56 +1,65 @@
 <?php
 session_start();
+session_set_cookie_params(3600); // Expira em 1 hora
+if (!isset($_SESSION['csrf_token'])) {
+   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-// Password setup
+// Configuração da senha
 if (isset($_POST['password'])) {
    $_SESSION['password'] = $_POST['password'];
 }
-
-// Cooldown time setting
-$reload_time = 5000; // Default value: 5 seconds (in milliseconds)
+// Configuração do tempo de recarga
+$reload_time = 5000;
 if (isset($_POST['reload_time']) && is_numeric($_POST['reload_time']) && $_POST['reload_time'] >= 1) {
-   $_SESSION['reload_time'] = (int)$_POST['reload_time'] * 1000; // Convert seconds to milliseconds
+   if ($_POST['csrf_token'] === $_SESSION['csrf_token']) {
+      $_SESSION['reload_time'] = (int)$_POST['reload_time'] * 1000;
+   } else {
+      die('CSRF token inválido');
+   }
 }
 if (isset($_SESSION['reload_time'])) {
    $reload_time = $_SESSION['reload_time'];
 }
-
-// Clear the accumulated log
-if (isset($_POST['clear_log'])) {
+// Limpar log acumulado
+if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
    $_SESSION['log_content'] = [];
+} elseif (isset($_POST['clear_log'])) {
+   die('CSRF token inválido');
 }
-
-// Password verification
+// Verificação da senha
 if (isset($_SESSION['password'])) {
    if ($_SESSION['password'] != "XLX_log") {
-      echo '
-      <form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
+      echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Entrar" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
+         <input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">
       </form>';
       die();
    }
 } else {
-   echo '
-      <form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
+   echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Entrar" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
+         <input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">
       </form>';
    die();
 }
 ?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta charset="utf-8" />
    <title>XLX Live Log Monitor</title>
-<!-- Google Monospace Fonts -->
-   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&display=swap" rel="stylesheet">
-<!-- Awesome Font -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+   <!-- Fontes monoespacadas -->
+   <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&family=JetBrains+Mono&family=Inconsolata&family=Ubuntu+Mono&display=swap" rel="stylesheet">
+
+   <!-- Font Awesome -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
+
    <style>
+      /* Para manutenção, considere mover o CSS para um arquivo externo (ex.: styles.css) */
       body {
          background-color: #1a1a1a;
          color: #c3dcba;
@@ -68,43 +77,54 @@ if (isset($_SESSION['password'])) {
          margin-bottom: 20px;
       }
       .header h1 {
-         font-size: 32px; /* Larger size for title */
-         color: #c3dcba;
-         margin: 0;
-         padding: 15px 0; /* Adjusted to balance */
+         font-size: 32px;
          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-         background: linear-gradient(to right, #c3dcba, #a3b25a); /* Untitled Gradient */
-         -webkit-background-clip: text; /* Applies the gradient to text only */
+         background: linear-gradient(to right, #c3dcba, #a3b25a);
+         -webkit-background-clip: text;
          background-clip: text;
-         color: transparent; /* Make text transparent so gradient shows through */
+         color: transparent;
+      }
+      .error-message {
+         color: #cc0000;
+         text-align: center;
+         margin-bottom: 15px;
+         font-size: 14px;
       }
       .controls {
          display: flex;
          gap: 10px;
          align-items: center;
          margin-bottom: 15px;
-         flex-wrap: nowrap; /* Prevents line breaks */
-         justify-content: space-between; /* Aligns elements with even spacing */
+         flex-wrap: wrap;
+         justify-content: space-between;
       }
       .control-group {
          display: flex;
          gap: 10px;
          align-items: center;
-         flex-shrink: 0; /* Prevents groups from shrinking too much */
-         white-space: nowrap; /* Ensures that inner elements are in a row */
+         flex-shrink: 0;
+         white-space: nowrap;
+         position: relative;
       }
-      input[type="number"], input[type="text"] {
+      .reload-time-container {
+         position: relative;
+         display: inline-block;
+      }
+      input[type="number"], input[type="text"], select {
          padding: 5px;
          background-color: #333333;
          color: #c3dcba;
          border: 1px solid #444444;
          border-radius: 3px;
+         font-size: 14px;
       }
       input#reload_time_input {
-         width: 50px; /* Reduced width for cooldown field */
+         width: 50px;
+         padding-right: 28px;
       }
       input#filter_input {
-         width: 130px; /* Increased width for filter field */
+         padding-right: 25px;
+         width: 130px;
       }
       button, input[type="button"], input[type="submit"] {
          padding: 5px 10px;
@@ -117,34 +137,73 @@ if (isset($_SESSION['password'])) {
          display: flex;
          align-items: center;
          gap: 5px;
+         font-size: 14px;
       }
       button:hover, input[type="button"]:hover, input[type="submit"]:hover {
          background-color: #444444;
       }
       button#pause_button.paused {
-         background-color: #a3b25a; /* Highlighted color for paused button */
-         color: #1a1a1a; /* Contrast with the dark background */
+         background-color: #a3b25a;
+         color: #1a1a1a;
       }
-      button i {
-         font-size: 14px; /* Consistent size for icons */
-      }
-      label {
+      #clear_filter_button {
+         position: absolute;
+         right: 5px;
+         top: 50%;
+         transform: translateY(-50%);
+         background: transparent;
+         border: none;
          color: #c3dcba;
+         font-weight: bold;
+         cursor: pointer;
+         font-size: 25px;
+         padding: 0;
+         line-height: 1;
+      }
+      #clear_filter_button:hover {
+         color: #a3b25a;
+      }
+      #clear_filter_button:focus {
+         outline: none;
+      }
+      #reload_time_btn {
+         position: absolute;
+         right: 5px;
+         top: 50%;
+         transform: translateY(-50%);
+         background: transparent;
+         border: none;
+         color: #c3dcba;
+         cursor: pointer;
+         padding: 0;
+         font-size: 16px;
+         display: flex;
+         align-itemsグロ
+
+         align-items: center;
+         justify-content: center;
+      }
+      #reload_time_btn:hover {
+         color: #a3b25a;
+      }
+      #reload_time_btn:focus {
+         outline: none;
       }
       #log_content {
-         background-color: #909090;
+         background-color: #a0a0a0;
          color: #000000;
          padding: 10px;
          max-height: 600px;
          overflow-y: auto;
-         font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Roboto Mono', monospace;
-         font-size: 7px;
+         font-family: 'JetBrains Mono', monospace;
+         font-size: 10px;
          line-height: 1.2;
          white-space: pre-wrap;
          border: 2px solid #444444;
          border-radius: 5px;
          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
          transition: background-color 0.3s;
+         position: relative;
       }
       #log_content.paused {
          background-color: #d4d488 !important;
@@ -160,59 +219,80 @@ if (isset($_SESSION['password'])) {
       .log-warning {
          color: #ff9900;
       }
-      /* Media query for smaller screens */
+      .log-footer {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-top: 5px;
+         font-size: 14px;
+         color: #c3dcba;
+      }
+      .font-selector, .size-selector {
+         background-color: #333333;
+         color: #c3dcba;
+         border: 1px solid #444444;
+         border-radius: 3px;
+         padding: 5px;
+         cursor: pointer;
+         margin-left: 5px;
+      }
+      .font-selector {
+         margin-left: 0;
+      }
+      .font-size-group {
+         display: flex;
+         align-items: center;
+         white-space: nowrap;
+      }
+      .back-link-button {
+         display: inline-flex;
+         align-items: center;
+         gap: 5px;
+         padding: 5px 10px;
+         background-color: #333333;
+         color: #c3dcba;
+         border: 1px solid #444444;
+         border-radius: 3px;
+         cursor: pointer;
+         text-decoration: none;
+         transition: background-color 0.2s;
+      }
+      .back-link-button:hover {
+         background-color: #444444;
+      }
       @media (max-width: 600px) {
          .controls {
-            flex-wrap: wrap; /* Allows line breaks on small screens */
+            flex-wrap: wrap;
          }
          .control-group {
-            flex-basis: 100%; /* Each group occupies 100% of the width */
+            flex-basis: 100%;
+         }
+         .log-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+         }
+         .font-size-group {
+            margin-top: 5px;
          }
       }
-      .back-button {
-          margin-top: 10px; /* Space between log frame and button */
-          text-align: left; /* Align the button to the the left */
-      }
-      .back-link {
-          text-decoration: none; /* Remove underline from link */
-      }
-      .back-link button {
-          padding: 5px 10px;
-          background-color: #333333;
-          color: #c3dcba;
-          border: 1px solid #444444;
-          border-radius: 3px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-      }
-     .back-link button:hover {
-          background-color: #444444;
-      }
    </style>
+
    <script>
       let reloadInterval;
       let isPaused = false;
+      let autoScroll = true;
 
-      // Debounce function
       function debounce(func, wait) {
          let timeout;
-         return function executedFunction(...args) {
-            const later = () => {
-               clearTimeout(timeout);
-               func(...args);
-            };
+         return function(...args) {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
          };
       }
 
       function startLogUpdate(reloadTime) {
-         if (reloadInterval) {
-            clearInterval(reloadInterval);
-         }
+         if (reloadInterval) clearInterval(reloadInterval);
          if (!isPaused) {
             reloadInterval = setInterval(fetchLog, reloadTime);
             fetchLog();
@@ -222,9 +302,16 @@ if (isset($_SESSION['password'])) {
       function fetchLog() {
          const filter = document.getElementById('filter_input').value;
          fetch('fetch_log.php?filter=' + encodeURIComponent(filter))
-            .then(response => response.text())
+            .then(response => {
+               if (!response.ok) throw new Error('Falha ao carregar o log');
+               return response.text();
+            })
             .then(data => {
                const logContent = document.getElementById('log_content');
+               if (data.startsWith('Erro:')) {
+                  logContent.textContent = data;
+                  return;
+               }
                logContent.innerHTML = '';
                data.split('\n').forEach(line => {
                   const div = document.createElement('div');
@@ -237,30 +324,31 @@ if (isset($_SESSION['password'])) {
                   div.textContent = line;
                   logContent.appendChild(div);
                });
-               logContent.scrollTop = 0;
+               if (autoScroll) logContent.scrollTop = 0;
             })
             .catch(error => {
-               console.error('Error fetching log:', error);
-               document.getElementById('log_content').textContent = 'Error loading log.';
+               console.error('Erro ao carregar log:', error);
+               document.getElementById('log_content').textContent = 'Erro ao carregar o log. Tente novamente.';
             });
       }
 
       function UpdateReloadTime() {
          const reloadTimeInput = document.getElementById('reload_time_input').value;
-         if (reloadTimeInput >= 1) {
+         if (reloadTimeInput && !isNaN(reloadTimeInput) && reloadTimeInput >= 1) {
             const formData = new FormData();
             formData.append('reload_time', reloadTimeInput);
-
-            fetch('./index.php', {
-               method: 'POST',
-               body: formData
-            })
-            .then(() => {
-               startLogUpdate(reloadTimeInput * 1000);
-            })
-            .catch(error => console.error('Error updating time:', error));
+            formData.append('csrf_token', '<?php echo $_SESSION['csrf_token']; ?>');
+            fetch('./index.php', { method: 'POST', body: formData })
+               .then(response => {
+                  if (!response.ok) throw new Error('Falha ao atualizar tempo');
+                  startLogUpdate(reloadTimeInput * 1000);
+               })
+               .catch(error => {
+                  console.error('Erro ao atualizar tempo:', error);
+                  alert('Erro ao atualizar tempo de recarga.');
+               });
          } else {
-            alert('Please enter a value greater than or equal to 1.');
+            alert('Por favor, insira um valor numérico maior ou igual a 1.');
          }
       }
 
@@ -271,13 +359,13 @@ if (isset($_SESSION['password'])) {
          if (isPaused) {
             clearInterval(reloadInterval);
             pauseButton.innerHTML = '<i class="fas fa-play"></i> Retomar';
-            pauseButton.classList.add('paused'); // Adds the paused class to the button
+            pauseButton.classList.add('paused');
             logContent.classList.add('paused');
          } else {
             const reloadTime = document.getElementById('reload_time_input').value * 1000;
             startLogUpdate(reloadTime);
             pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pausar';
-            pauseButton.classList.remove('paused'); // Remove the paused class from the button
+            pauseButton.classList.remove('paused');
             logContent.classList.remove('paused');
          }
       }
@@ -285,53 +373,119 @@ if (isset($_SESSION['password'])) {
       function clearLog() {
          const formData = new FormData();
          formData.append('clear_log', true);
-
-         fetch('./index.php', {
-            method: 'POST',
-            body: formData
-         })
-         .then(() => fetchLog())
-         .catch(error => console.error('Error clearing log:', error));
+         formData.append('csrf_token', '<?php echo $_SESSION['csrf_token']; ?>');
+         fetch('./index.php', { method: 'POST', body: formData })
+            .then(() => fetchLog())
+            .catch(error => {
+               console.error('Erro ao limpar log:', error);
+               document.getElementById('log_content').textContent = 'Erro ao limpar o log.';
+            });
       }
 
       function exportLog() {
-         window.location.href = 'export_log.php';
+         window.location.href = 'export_log.php?csrf_token=<?php echo $_SESSION['csrf_token']; ?>';
+      }
+
+      function toggleAutoScroll() {
+         autoScroll = !autoScroll;
+         document.getElementById('scroll_toggle').innerHTML = '<i class="fas fa-scroll"></i> ' + (autoScroll ? 'Desativar Auto-Scroll' : 'Ativar Auto-Scroll');
       }
 
       window.onload = () => {
          startLogUpdate(<?php echo $reload_time; ?>);
-         // Debounces the filter event with a 300ms delay
-         const debouncedFetchLog = debounce(fetchLog, 500);
-         document.getElementById('filter_input').oninput = debouncedFetchLog;
+         const filterInput = document.getElementById('filter_input');
+         filterInput.oninput = debounce(fetchLog, 500);
+
+         const clearFilterButton = document.getElementById('clear_filter_button');
+         clearFilterButton.addEventListener('click', () => {
+            filterInput.value = '';
+            filterInput.dispatchEvent(new Event('input'));
+         });
+
+         const fontSelect = document.getElementById('font_select');
+         const sizeSelect = document.getElementById('font_size_select');
+         const logContent = document.getElementById('log_content');
+
+         fontSelect.value = "'JetBrains Mono', monospace";
+         logContent.style.fontFamily = fontSelect.value;
+
+         fontSelect.addEventListener('change', () => {
+            logContent.style.fontFamily = fontSelect.value;
+         });
+
+         sizeSelect.addEventListener('change', () => {
+            logContent.style.fontSize = sizeSelect.value + 'px';
+         });
+
+         const reloadBtn = document.getElementById('reload_time_btn');
+         reloadBtn.addEventListener('click', UpdateReloadTime);
       };
    </script>
 </head>
 <body>
    <div class="container">
-      <div class="header">
-         <h1>XLX Live Log Monitor</h1>
-      </div>
+      <div class="header"><h1>XLX Live Log Monitor</h1></div>
+      <?php
+      if (isset($_SESSION['error'])) {
+         echo '<div class="error-message">' . htmlspecialchars($_SESSION['error']) . '</div>';
+         unset($_SESSION['error']);
+      }
+      ?>
       <div class="controls">
-         <div class="control-group">
-            <label for="reload_time_input">Reload time (sec.):</label>
-            <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" step="1" />
-            <button type="button" onclick="UpdateReloadTime()"><i class="fas fa-sync-alt"></i> Update</button>
+         <div class="control-group reload-time-container">
+            <label for="reload_time_input">Reload (s):</label>
+            <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" aria-label="Tempo de recarga em segundos" />
+            <button type="button" id="reload_time_btn" title="Atualizar" aria-label="Atualizar tempo de recarga">
+               <i class="fas fa-sync-alt"></i>
+            </button>
          </div>
-         <div class="control-group">
-            <label for="filter_input">Filter:</label>
-            <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" />
+
+         <div class="control-group" style="position: relative;">
+            <label for="filter_input" style="margin-right: 5px;">Filtro:</label>
+            <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" aria-label="Filtrar logs" />
+            <button id="clear_filter_button" title="Limpar filtro" aria-label="Limpar filtro">×</button>
          </div>
+
          <div class="control-group">
-            <button id="pause_button" onclick="togglePause()"><i class="fas fa-pause"></i> Pause</button>
-            <button onclick="clearLog()"><i class="fas fa-trash"></i> Clear</button>
-            <button onclick="exportLog()"><i class="fas fa-download"></i> Export</button>
+            <button id="pause_button" onclick="togglePause()" aria-label="Pausar atualização do log"><i class="fas fa-pause"></i> Pausar</button>
+            <button onclick="clearLog()" aria-label="Limpar log"><i class="fas fa-trash"></i> Limpar</button>
+            <button onclick="exportLog()" aria-label="Exportar log"><i class="fas fa-download"></i> Exportar</button>
+            <button onclick="toggleAutoScroll()" id="scroll_toggle" aria-label="Alternar auto-scroll"><i class="fas fa-scroll"></i> Desativar Auto-Scroll</button>
          </div>
       </div>
-      <div id="log_content">
-         Loading log...
-      </div>
-      <div class="back-button">
-        <a href="../index.php" class="back-link"><button><i class="fas fa-arrow-left"></i> Back</button></a>
+
+      <div id="log_content" aria-live="polite">Carregando log...</div>
+
+      <div class="log-footer">
+         <div class="back-link">
+            <a href="../index.php" class="back-link-button" aria-label="Voltar para a página inicial">
+               <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+         </div>
+         <div class="font-size-group">
+            <label for="font_select">Fonte:</label>
+            <select id="font_select" class="font-selector" aria-label="Selecionar fonte do log">
+               <option value="'Fira Code', monospace">Fira Code</option>
+               <option value="'Source Code Pro', monospace">Source Code Pro</option>
+               <option value="'Roboto Mono', monospace">Roboto Mono</option>
+               <option value="'JetBrains Mono', monospace" selected>JetBrains Mono</option>
+               <option value="'Inconsolata', monospace">Inconsolata</option>
+               <option value="'Ubuntu Mono', monospace">Ubuntu Mono</option>
+               <option value="'monospace'">Monospace padrão</option>
+            </select>
+
+            <label for="font_size_select" style="margin-left: 15px;">Tamanho:</label>
+            <select id="font_size_select" class="size-selector" aria-label="Selecionar tamanho da fonte">
+               <option value="7">7 px</option>
+               <option value="8">8 px</option>
+               <option value="9">9 px</option>
+               <option value="10" selected>10 px</option>
+               <option value="11">11 px</option>
+               <option value="12">12 px</option>
+               <option value="13">13 px</option>
+               <option value="14">14 px</option>
+            </select>
+         </div>
       </div>
    </div>
 </body>
