@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-// Verificação da sessão
-if (!isset($_SESSION['password']) || $_SESSION['password'] != XLX_log") {
+// Session verification
+if (!isset($_SESSION['password']) || $_SESSION['password'] != "XLX_log") {
     header('Content-Type: text/plain; charset=utf-8');
-    echo "Erro: Acesso negado. Faça login novamente.";
+    echo "Error: Access denied. Please log in again.";
     exit();
 }
 
 header('Content-Type: text/plain; charset=utf-8');
 
-// Sanitizar o filtro
+// Sanitize filter parameter
 $filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_STRING) ?? '';
 $logFile = '/var/log/xlx.log';
 
@@ -25,10 +25,11 @@ if (file_exists($logFile) && is_readable($logFile)) {
             }
         }
     }
-    $file = null; // Fechar o arquivo
+    $file = null; // Close file
     echo implode("\n", array_reverse($lines));
 } else {
-    error_log("Erro ao acessar log em $logFile: " . (file_exists($logFile) ? 'Permissão negada' : 'Arquivo não encontrado'));
-    echo "Erro: Não foi possível acessar o log.";
+    // Log error for debugging
+    error_log("Error accessing log at $logFile: " . (file_exists($logFile) ? 'Permission denied' : 'File not found'));
+    echo "Error: Unable to access log.";
 }
 ?>
