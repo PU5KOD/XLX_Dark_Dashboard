@@ -185,6 +185,7 @@ if (isset($_SESSION['password'])) {
       }
       #reload_time_btn {
          top: 50%;
+         font-size: 16px;
          transform: translateY(-50%);
       }
       #increment_btn {
