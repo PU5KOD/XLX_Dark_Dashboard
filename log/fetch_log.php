@@ -1,17 +1,34 @@
 <?php
-header('Content-Type: text/plain');
+session_start();
 
-$logFile = '/var/log/xlx.log'; 
-$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+// Verificação da sessão
+if (!isset($_SESSION['password']) || $_SESSION['password'] != XLX_log") {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Erro: Acesso negado. Faça login novamente.";
+    exit();
+}
+
+header('Content-Type: text/plain; charset=utf-8');
+
+// Sanitizar o filtro
+$filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_STRING) ?? '';
+$logFile = '/var/log/xlx.log';
 
 if (file_exists($logFile) && is_readable($logFile)) {
-    $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $filteredLines = array_filter($lines, function($line) use ($filter) {
-        return empty($filter) || stripos($line, $filter) !== false;
-    });
-    $lines = array_reverse($filteredLines); // Inverted order
-    echo implode("\n", $lines); // Replicate original data without date/time conversion
+    $file = new SplFileObject($logFile, 'r');
+    $lines = [];
+    while (!$file->eof()) {
+        $line = $file->fgets();
+        if (trim($line) !== '') {
+            if (empty($filter) || stripos($line, $filter) !== false) {
+                $lines[] = trim($line);
+            }
+        }
+    }
+    $file = null; // Fechar o arquivo
+    echo implode("\n", array_reverse($lines));
 } else {
-    echo "Error: Could not access log.";
+    error_log("Erro ao acessar log em $logFile: " . (file_exists($logFile) ? 'Permissão negada' : 'Arquivo não encontrado'));
+    echo "Erro: Não foi possível acessar o log.";
 }
 ?>
