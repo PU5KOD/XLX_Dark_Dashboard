@@ -29,7 +29,7 @@ if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token
 }
 // Password verification
 if (isset($_SESSION['password'])) {
-   if ($_SESSION['password'] != "XLX_log") {
+   if ($_SESSION['password'] != "WhrebeVerde") {
       echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
@@ -52,7 +52,7 @@ if (isset($_SESSION['password'])) {
    <meta charset="utf-8" />
    <title>XLX Live Log Monitor</title>
 
-   <!-- Monospace Google fonts -->
+   <!-- Monospace fonts -->
    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&family=JetBrains+Mono&family=Inconsolata&family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
    <!-- Font Awesome -->
@@ -116,17 +116,19 @@ if (isset($_SESSION['password'])) {
          color: #c3dcba;
          border: 1px solid #444444;
          border-radius: 3px;
-         font-size: 14px;
+         font-size: 16px;
       }
       input#reload_time_input {
-         width: 50px;
+         width: 30px;
+         height: 24px;
          padding-right: 28px;
          padding-top: 2px;
          padding-bottom: 2px;
       }
       input#filter_input {
          padding-right: 25px;
-         width: 130px;
+         width: 100px;
+         height: 18px;
       }
       button, input[type="button"], input[type="submit"] {
          padding: 5px 10px;
@@ -140,6 +142,8 @@ if (isset($_SESSION['password'])) {
          align-items: center;
          gap: 5px;
          font-size: 14px;
+         height: 30px; /* Standardized height for all buttons */
+         box-sizing: border-box; /* Ensures padding doesn't affect total height */
       }
       button:hover, input[type="button"]:hover, input[type="submit"]:hover {
          background-color: #444444;
@@ -151,7 +155,7 @@ if (isset($_SESSION['password'])) {
       #clear_filter_button {
          position: absolute;
          right: 5px;
-         top: 40%;
+         top: 50%;
          transform: translateY(-50%);
          background: transparent;
          border: none;
@@ -168,7 +172,7 @@ if (isset($_SESSION['password'])) {
       #clear_filter_button:focus {
          outline: none;
       }
-      #reload_time_btn, #increment_btn, #decrement_btn {
+      #increment_btn, #decrement_btn, #reload_time_btn {
          position: absolute;
          right: 2px;
          background: transparent;
@@ -182,11 +186,13 @@ if (isset($_SESSION['password'])) {
          justify-content: center;
          width: 20px;
          height: 12px;
+         box-sizing: border-box; /* Ensures height includes border and padding */
       }
       #reload_time_btn {
          top: 50%;
          font-size: 16px;
          transform: translateY(-50%);
+         right: 2px; /* Position after increment/decrement buttons */
       }
       #increment_btn {
          top: 2px;
@@ -482,7 +488,7 @@ if (isset($_SESSION['password'])) {
          </div>
 
          <div class="control-group" style="position: relative;">
-            <label for="filter_input" style="margin-right: 5px;">Filter:</label>
+            <label for="filter_input" style="margin-right: -2px;">Filter:</label>
             <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" aria-label="Filter logs" />
             <button id="clear_filter_button" title="Clear filter" aria-label="Clear filter">×</button>
          </div>
