@@ -29,7 +29,7 @@ if (isset($_POST['clear_log']) && $_POST['csrf_token'] === $_SESSION['csrf_token
 }
 // Password verification
 if (isset($_SESSION['password'])) {
-   if ($_SESSION['password'] != "XLX_log") {
+   if ($_SESSION['password'] != "WhrebeVerde") {
       echo '<form name="frmpass" action="./index.php" method="post" style="text-align: center; margin-top: 20px;">
          <input type="password" name="password" style="padding: 5px; background-color: #333333; color: #c3dcba; border: 1px solid #444444;" />
          <input type="submit" value="Login" style="padding: 5px 10px; background-color: #333333; color: #c3dcba; border: 1px solid #444444; cursor: pointer;" />
@@ -52,7 +52,7 @@ if (isset($_SESSION['password'])) {
    <meta charset="utf-8" />
    <title>XLX Live Log Monitor</title>
 
-   <!-- Monospace fonts -->
+   <!-- Monospace Google fonts -->
    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Code+Pro&family=Roboto+Mono&family=JetBrains+Mono&family=Inconsolata&family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
    <!-- Font Awesome -->
@@ -116,19 +116,15 @@ if (isset($_SESSION['password'])) {
          color: #c3dcba;
          border: 1px solid #444444;
          border-radius: 3px;
-         font-size: 16px;
+         font-size: 14px;
       }
       input#reload_time_input {
-         width: 30px;
-         height: 24px;
+         width: 50px;
          padding-right: 28px;
-         padding-top: 2px;
-         padding-bottom: 2px;
       }
       input#filter_input {
          padding-right: 25px;
-         width: 100px;
-         height: 18px;
+         width: 130px;
       }
       button, input[type="button"], input[type="submit"] {
          padding: 5px 10px;
@@ -142,8 +138,6 @@ if (isset($_SESSION['password'])) {
          align-items: center;
          gap: 5px;
          font-size: 14px;
-         height: 30px; /* Standardized height for all buttons */
-         box-sizing: border-box; /* Ensures padding doesn't affect total height */
       }
       button:hover, input[type="button"]:hover, input[type="submit"]:hover {
          background-color: #444444;
@@ -172,40 +166,25 @@ if (isset($_SESSION['password'])) {
       #clear_filter_button:focus {
          outline: none;
       }
-      #increment_btn, #decrement_btn, #reload_time_btn {
+      #reload_time_btn {
          position: absolute;
-         right: 2px;
+         right: 5px;
+         top: 50%;
+         transform: translateY(-50%);
          background: transparent;
          border: none;
          color: #c3dcba;
          cursor: pointer;
          padding: 0;
-         font-size: 12px;
+         font-size: 16px;
          display: flex;
          align-items: center;
          justify-content: center;
-         width: 20px;
-         height: 12px;
-         box-sizing: border-box; /* Ensures height includes border and padding */
       }
-      #reload_time_btn {
-         top: 50%;
-         font-size: 16px;
-         transform: translateY(-50%);
-         right: 2px; /* Position after increment/decrement buttons */
-      }
-      #increment_btn {
-         top: 2px;
-         right: 20px;
-      }
-      #decrement_btn {
-         bottom: 2px;
-         right: 20px;
-      }
-      #increment_btn:hover, #decrement_btn:hover, #reload_time_btn:hover {
+      #reload_time_btn:hover {
          color: #a3b25a;
       }
-      #increment_btn:focus, #decrement_btn:focus, #reload_time_btn:focus {
+      #reload_time_btn:focus {
          outline: none;
       }
       #log_content {
@@ -375,15 +354,6 @@ if (isset($_SESSION['password'])) {
          }
       }
 
-      // Increment or decrement reload time
-      function adjustReloadTime(amount) {
-         const reloadTimeInput = document.getElementById('reload_time_input');
-         let value = parseInt(reloadTimeInput.value) || 0;
-         value = Math.max(1, value + amount); // Ensure minimum value is 1
-         reloadTimeInput.value = value;
-         UpdateReloadTime(); // Update the reload interval immediately
-      }
-
       // Toggle pause/resume for log updates
       function togglePause() {
          isPaused = !isPaused;
@@ -456,10 +426,6 @@ if (isset($_SESSION['password'])) {
 
          const reloadBtn = document.getElementById('reload_time_btn');
          reloadBtn.addEventListener('click', UpdateReloadTime);
-
-         // Add event listeners for increment and decrement buttons
-         document.getElementById('increment_btn').addEventListener('click', () => adjustReloadTime(1));
-         document.getElementById('decrement_btn').addEventListener('click', () => adjustReloadTime(-1));
       };
    </script>
 </head>
@@ -476,19 +442,13 @@ if (isset($_SESSION['password'])) {
          <div class="control-group reload-time-container">
             <label for="reload_time_input">Reload (s):</label>
             <input type="number" id="reload_time_input" name="reload_time" value="<?php echo $reload_time / 1000; ?>" min="1" aria-label="Reload time in seconds" />
-            <button type="button" id="increment_btn" title="Increment" aria-label="Increase reload time">
-               <i class="fas fa-arrow-up"></i>
-            </button>
-            <button type="button" id="decrement_btn" title="Decrement" aria-label="Decrease reload time">
-               <i class="fas fa-arrow-down"></i>
-            </button>
             <button type="button" id="reload_time_btn" title="Update" aria-label="Update reload time">
                <i class="fas fa-sync-alt"></i>
             </button>
          </div>
 
          <div class="control-group" style="position: relative;">
-            <label for="filter_input" style="margin-right: -2px;">Filter:</label>
+            <label for="filter_input" style="margin-right: 5px;">Filter:</label>
             <input type="text" id="filter_input" name="filter" placeholder="Ex.: PU5KOD" aria-label="Filter logs" />
             <button id="clear_filter_button" title="Clear filter" aria-label="Clear filter">×</button>
          </div>
