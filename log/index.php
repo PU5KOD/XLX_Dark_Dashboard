@@ -492,7 +492,7 @@ if (isset($_SESSION['password'])) {
                <option value="13">13 px</option>
                <option value="14">14 px</option>
                <option value="16">16 px</option>
-                <option value="18">18 px</option>
+               <option value="18">18 px</option>
             </select>
          </div>
       </div>
