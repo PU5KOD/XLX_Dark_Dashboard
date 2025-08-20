@@ -11,53 +11,22 @@ sudo chown -R www-data:www-data /xlxd/users_db
 cd /xlxd/users_db/
 sudo ./update_db.sh 
 
-4. Run the script to create the SQLite database:
-sudo php /xlxd/users_db/create_user_db.php
-sudo chown www-data:www-data /xlxd/users_db/users.db
-sudo chmod 755 /xlxd/users_db/users.db
-
-5. Create the daily update process for the callsign database, if you don't have the "crontab" app installed, go to item 6 below, which explains how to create the systemd-based service:
+4. Create the daily update process for the callsign database:
 sudo crontab -e
 Insert the value below at the end of the file, adjust the paths if necessary:
 0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php
 
-6. If you don't have "crontab" installed and don't want to install it, you can use systemd to perform the update procedures, There are two files, update_XLX_db.service and update_XLX_db.timer, follow the script.
+5. If you don't have the "crontab" app installed and don't want to install it, you can use systemd to perform the update procedures. Simply copy the files update_XLX_db.* located in the templates directory of the reflector installation folder to systemd:
+sudo cp /usr/src/XLX_Installer/templates/update_XLX_db* /etc/systemd/system/
 
-6.1. Copy the two "update_XLX_db" files that are in the "yourhomedirectory/xlxd_installer/templates" directory of the reflector installation project, or if you don't find them, create them according to the following:
-sudo nano /etc/systemd/system/update_XLX_db.service
-with the following content:
-	
-[Unit]
-Description=Update XLX user database
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c '/xlxd/users_db/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
-StandardOutput=journal
-StandardError=journal
-
-6.2. Create the timer file:
-sudo nano /etc/systemd/system/update_XLX_db.timer
-with the following content:
-
-[Unit]
-Description=Run update_XLX_db.sh daily at 3am
-
-[Timer]
-OnCalendar=*-*-* 03:00:00
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-
-6.3. Reload services:
+6. Run the commands below to reload and activate the process:
 sudo systemctl daemon-reload
 sudo systemctl enable --now update_XLX_db.timer
 
-6.4. Check if the timer is active and working:
+7. Check if the timer is active and working:
 systemctl list-timers --all | grep update_XLX_db
 	
-6.5. If you want to manually test the service:
+8. If you want to manually test the service:
 sudo systemctl start update_XLX_db.service
 
 
@@ -97,6 +66,7 @@ sudo dpkg-reconfigure locales
 
 
 
-To-do
-Detail procedures for password-protected websites
-UPnP port forwarding
+To-dos:
+* Detail procedures for password-protected websites;
+* Date and country selection;
+* UPnP port forwarding;
