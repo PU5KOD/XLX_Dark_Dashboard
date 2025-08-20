@@ -37,8 +37,12 @@ sudo systemctl start update_XLX_db.service
 
 Apache adaptation needed to display dates correctly:
 
-1. In /etc/php/8.2/apache2/php.ini look for the date.timezone parameter (in the file it is below "Module Settings") and set it to the correct location, in the example below it was set as date.timezone = "America/Sao_Paulo", there are other values that can also be changed at will, just don't forget to delete the ; in front of the parameter to enable it.
-After the change, reload Apache with "sudo systemctl reload apache2.service".
+1. In /etc/php/8.2/apache2/php.ini look for the date.timezone parameter (in the file it is below "Module Settings") and set it to the correct location, in the example below it was set as date.timezone = "America/Sao_Paulo", there are other values that can also be changed at will, just don't forget to delete the ; in front of the parameter to enable it. You can check available time zones with:
+timedatectl list-timezones | grep America
+sudo sed -i 's/;date.timezone =/date.timezone = "America\/Sao_Paulo"/' /etc/php/8.2/apache2/php.ini
+sudo sed -i 's/;date.default_latitude = 31.7667/date.default_latitude = -26.1493/' /etc/php/8.2/apache2/php.ini
+sudo sed -i 's/;date.default_longitude = 35.2333/date.default_longitude = -49.8123/' /etc/php/8.2/apache2/php.ini
+sudo systemctl reload apache2.service
 
 [Date]
 ; Defines the default timezone used by the date functions
