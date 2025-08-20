@@ -55,7 +55,21 @@ date.default_latitude = -26.1493
 ; https://php.net/date.default-longitude
 date.default_longitude = -49.8123
 
+2.If you have any type of access control such as username/password to access the page, the following change must be made:
+sudo nano /etc/apache2/apache2.conf
 
+Enter values equivalent to the following:
+
+<Directory /var/www/html/xlxd/>
+    AllowOverride All
+</Directory>
+
+<Directory /var/www/html/keys/>
+    AllowOverride All
+</Directory>
+
+At the end, don't forget to reload the service:
+sudo systemctl reload apache2.service
 
 =======================================================
 
