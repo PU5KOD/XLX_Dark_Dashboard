@@ -73,9 +73,19 @@ Enter values equivalent to the following:
 At the end, don't forget to reload the service:
 sudo systemctl reload apache2.service
 
+
+
 =======================================================
 
 
+
+Set Date and Time
+
+Set the local time according to the region, list the region with the command mentioned above (for American cities, for example, timedatectl list-timezones | grep America):
+sudo timedatectl set-timezone America/Sao_Paulo
+
+After that enable ntp:
+sudo timedatectl set-ntp true
 
 In the "Network" tab, for the dates to be displayed in Portuguese, simply add the Portuguese language to those already installed on the machine, to do this, simply enter the command below and select the language pt_BR.UTF-8 UTF-8 and add it to the existing ones, it's not necessary to mark it as main, it just needs to be present in the list:
 sudo dpkg-reconfigure locales
