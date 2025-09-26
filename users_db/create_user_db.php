@@ -1,12 +1,12 @@
 <?php
 
 // Path to CSV and SQLite database
-$csvFile = '/xlxd/users_db/user.csv';
+$csvFile = '/xlxd/users_db/users_base.csv';
 $dbFile = '/xlxd/users_db/users.db';
 
 // Check if CSV file exists
 if (!file_exists($csvFile)) {
-    die("Error: user.csv not found at $csvFile\n");
+    die("Error: users_base.csv not found at $csvFile\n");
 }
 
 // Create or open SQLite database
@@ -61,7 +61,7 @@ $db->exec('BEGIN TRANSACTION');
 // Read CSV and insert into database
 $handle = fopen($csvFile, 'r');
 if ($handle === false) {
-    die("Error: Could not open user.csv\n");
+    die("Error: Could not open users_base.csv\n");
 }
 
 // Skip header row
