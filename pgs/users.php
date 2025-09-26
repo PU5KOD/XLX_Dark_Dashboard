@@ -147,8 +147,8 @@ placeholder="Callsign" onfocus="SuspendPageRefresh();" onblur="setTimeout(Reload
                          echo ' / ' . $Reflector->Stations[$i]->GetPeer();
                      }
                      echo '</td>
-                    <td width="150" align="center">' . $userInfo['name'] . '</td>
-                    <td width="180" align="center">' . $userInfo['city_state'] . '</td>
+                    <td width="220" align="center">' . $userInfo['name'] . '</td>
+                    <td width="200" align="center">' . $userInfo['city_state'] . '</td>
                     <td align="center" width="40" valign="middle">';
                      list ($Flag, $Name) = $Reflector->GetFlag($Reflector->Stations[$i]->GetCallSign());
                      if (file_exists("./img/flags/" . $Flag . ".png")) {
