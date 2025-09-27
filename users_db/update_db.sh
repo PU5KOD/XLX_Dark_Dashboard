@@ -13,7 +13,7 @@ fi
 
 # Updating the database only with new information
 # Checks if files exist
-if [ ! -f "users_base.csv" ] || [ ! -f "user.csv" ]; then
+if [ ! -f "/xlxd/users_db/users_base.csv" ] || [ ! -f "/xlxd/users_db/user.csv" ]; then
     echo "Error: One or both of the files (users_base.csv or user.csv) were not found."
     exit 1
 fi
@@ -21,7 +21,7 @@ fi
 # Use awk to add only new rows to users_base.csv
 awk -F, '
 NR==FNR && NR>1 { ids[$1]=1; next }  # Stores IDs from users_base.csv (ignoring header)
-FNR>1 && !($1 in ids) { print }       # Print new lines from user.csv (ignoring header)
+FNR>1 && !($1 in ids) { print }      # Print new lines from user.csv (ignoring header)
 ' users_base.csv user.csv >> users_base.csv
 
 echo "Update complete! New rows (if any) have been added to users_base.csv without changing existing data."
