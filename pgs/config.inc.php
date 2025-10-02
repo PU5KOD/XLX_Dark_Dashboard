@@ -15,7 +15,7 @@ $VNStat      = array();
 
 $PageOptions['ContactEmail']                         = 'your_email';	// Support E-Mail address
 $PageOptions['CustomTXT']                            = 'custom_header';	// custom text in your header
-$PageOptions['DashboardVersion']                     = '2.4.2_dark';		// Dashboard Version
+$PageOptions['DashboardVersion']                     = '2.4.2+_blk';		// Dashboard Version
 $PageOptions['PageRefreshActive']                    = true;		// Activate automatic refresh
 $PageOptions['PageRefreshDelay']                     = '3000';		// Page refresh time in miliseconds
 $PageOptions['NumberOfModules']                      = MODQTD;		// Number of Modules enabled on reflector
