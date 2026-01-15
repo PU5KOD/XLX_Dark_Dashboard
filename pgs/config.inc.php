@@ -14,7 +14,8 @@ $PageOptions = array();
 $VNStat      = array();
 
 $PageOptions['ContactEmail']                         = 'your_email';	// Support E-Mail address
-$PageOptions['CustomTXT']                            = 'custom_header';	// custom text in your header
+$PageOptions['CustomTXT']                            = 'custom_header'; // Custom text in your header
+$PageOptions['Footnote']                             = 'custom_footnote'; // Custom text in you footnote
 $PageOptions['DashboardVersion']                     = '2.4.2+_blk';		// Dashboard Version
 $PageOptions['PageRefreshActive']                    = true;		// Activate automatic refresh
 $PageOptions['PageRefreshDelay']                     = '3000';		// Page refresh time in miliseconds
