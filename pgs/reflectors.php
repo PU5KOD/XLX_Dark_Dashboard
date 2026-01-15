@@ -20,9 +20,9 @@ $Reflectors = $XML->GetAllElements($Reflectorlist, "reflector");
  <tr>
  <th width="40">#</th>
  <th width="80">Reflector</th>
- <th width="200">Country of origin</th>
+ <th width="220">Country of origin</th>
  <th width="70">State</th>
- <th width="400">Description</th>
+ <th width="550">Description</th>
  </tr>
 <?php
 
