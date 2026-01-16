@@ -95,7 +95,7 @@ if (!$isAjax) {
     <meta name="robots" content="' . htmlspecialchars($PageOptions['MetaAuthor']) . '">
     <meta name="viewport" content="width=device-width, initial-scale=0.38">
     <meta name="apple-mobile-web-app-title" content="XLX Reflector" />
-    <title>' . htmlspecialchars($Reflector->GetReflectorName()) . ' Reflector Dashboard</title>
+    <title>' . htmlspecialchars($PageOptions['CustomTXT']) . '</title>
     <link rel="stylesheet" type="text/css" href="./css/layout.css">
     <link rel="icon" type="image/png" href="./img/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="./img/favicon/favicon.svg" />
