@@ -11,6 +11,8 @@ else
     wget -q -O - https://radioid.net/static/user.csv | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/users_db/user.csv
 fi
 
+sleep 2
+
 # Updating the database only with new information
 # Checks if files exist
 if [ ! -f "/xlxd/users_db/users_base.csv" ] || [ ! -f "/xlxd/users_db/user.csv" ]; then
