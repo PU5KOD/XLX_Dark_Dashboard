@@ -11,8 +11,6 @@ else
     wget -q -O - https://radioid.net/static/user.csv | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/users_db/user.csv
 fi
 
-sleep 2
-
 # Updating the database only with new information
 # Checks if files exist
 if [ ! -f "/xlxd/users_db/users_base.csv" ] || [ ! -f "/xlxd/users_db/user.csv" ]; then
@@ -24,7 +22,7 @@ fi
 awk -F, '
 NR==FNR && NR>1 { ids[$1]=1; next }  # Stores IDs from users_base.csv (ignoring header)
 FNR>1 && !($1 in ids) { print }      # Print new lines from user.csv (ignoring header)
-' users_base.csv user.csv >> users_base.csv
+' /xlxd/users_db/users_base.csv /xlxd/users_db/user.csv >> /xlxd/users_db/users_base.csv
 
 echo "Update complete! New rows (if any) have been added to users_base.csv without changing existing data."
 
