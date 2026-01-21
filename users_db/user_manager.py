@@ -57,15 +57,23 @@ def registrar_historico(antes, depois):
         h.write("-" * 60 + "\n")
 
 
+def registrar_exclusao(linha):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(HISTORICO, "a", encoding="utf-8") as h:
+        h.write(f"[{timestamp}] EXCLUSÃO\n")
+        h.write(f"REMOVIDO: {linha}\n")
+        h.write("-" * 60 + "\n")
+
+
 def backup():
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     destino = os.path.join(BACKUP_DIR, f"{ARQUIVO}.bak-{timestamp}")
     shutil.copyfile(ARQUIVO, destino)
-    print(f"{Cores.INFO}Backup criado em: {destino}{Cores.FIM}")
+    print(f"{Cores.INFO}Backup criado: {destino}{Cores.FIM}")
 
 
 # ============================================================
-#                  BUSCAS ROBUSTAS
+#                   BUSCAS ROBUSTAS
 # ============================================================
 def buscar_por_dmrid(linhas, dmrid):
     if dmrid == "":
@@ -79,11 +87,10 @@ def buscar_por_dmrid(linhas, dmrid):
 
 
 def buscar_por_callsign(linhas, call):
-    call = call.upper()
     for idx, row in enumerate(linhas):
         if len(row) < 7:
             continue
-        if row[1].upper() == call:
+        if row[1].upper() == call.upper():
             return idx
     return None
 
@@ -117,21 +124,20 @@ def verificar_estrutura():
 
     arquivo_relatorio = open(RELATORIO, "w", encoding="utf-8")
 
-    # Tee: envia saída para terminal e arquivo simultaneamente
     class Tee:
-        def __init__(self, *saida):
-            self.saida = saida
+        def __init__(self, *saidas):
+            self.saidas = saidas
 
         def write(self, txt):
-            for s in self.saida:
+            for s in self.saidas:
                 s.write(txt)
 
         def flush(self):
-            for s in self.saida:
+            for s in self.saidas:
                 s.flush()
 
-    tee = Tee(sys.stdout, arquivo_relatorio)
-    sys.stdout = tee
+    saidas = Tee(sys.stdout, arquivo_relatorio)
+    sys.stdout = saidas
 
     print(f"{Cores.INFO}=== VERIFICAÇÃO DO ARQUIVO {ARQUIVO} ==={Cores.FIM}")
 
@@ -165,7 +171,7 @@ def verificar_estrutura():
             colunas_erradas.append((i, len(row)))
             continue
 
-        dmrid, call, *_ = row
+        dmrid, call, nome, sobrenome, cidade, estado, pais = row
 
         if dmrid != "" and not re.match(r"^\d{7}$", dmrid):
             dmrids_invalidos.append((i, dmrid))
@@ -177,13 +183,11 @@ def verificar_estrutura():
             if dmrid not in vistos_dmrid:
                 vistos_dmrid[dmrid] = i
             else:
-                duplicados_dmrid.setdefault(dmrid, []).extend(
-                    [vistos_dmrid[dmrid], i]
-                )
+                duplicados_dmrid.setdefault(dmrid, []).extend([vistos_dmrid[dmrid], i])
 
         ok += 1
 
-    # Pretty print helper
+    # Auxiliar
     def exibir_lista(titulo, lista, formato=None):
         if not lista:
             print(f"{Cores.OK}{titulo}: nenhuma.{Cores.FIM}")
@@ -192,7 +196,7 @@ def verificar_estrutura():
         for item in lista:
             print("   " + (formato(item) if formato else str(item)))
 
-    # Output
+    # ---------------- RELATÓRIO -----------------
     print()
     print(f"{Cores.INFO}Total de linhas: {total}{Cores.FIM}")
     print(f"{Cores.OK}Linhas válidas: {ok}{Cores.FIM}")
@@ -200,24 +204,22 @@ def verificar_estrutura():
 
     exibir_lista("Linhas vazias", vazias)
     exibir_lista("Linhas com número errado de colunas",
-                 colunas_erradas,
-                 lambda x: f"Linha {x[0]}: {x[1]} colunas")
+                 colunas_erradas, lambda x: f"Linha {x[0]}: {x[1]} colunas")
 
     exibir_lista("DMRIDs inválidos",
-                 dmrids_invalidos,
-                 lambda x: f"Linha {x[0]}: '{x[1]}'")
+                 dmrids_invalidos, lambda x: f"Linha {x[0]}: '{x[1]}'")
 
     exibir_lista("Indicativos inválidos",
-                 calls_invalidos,
-                 lambda x: f"Linha {x[0]}: '{x[1]}'")
+                 calls_invalidos, lambda x: f"Linha {x[0]}: '{x[1]}'")
 
     exibir_lista("DMRIDs duplicados",
                  [[k] + v for k, v in duplicados_dmrid.items()],
                  lambda x: f"DMRID {x[0]} duplicado nas linhas {x[1:]}")
 
-    # --------- Estatísticas (normal, não erro) ----------
+    # Estatística útil
     print()
     contagem_call = {}
+
     for row in linhas:
         if len(row) == 7:
             call = row[1].upper()
@@ -230,8 +232,6 @@ def verificar_estrutura():
         print(f"{Cores.INFO}Indicativos com múltiplos DMRIDs (normal):{Cores.FIM}")
         for call, qtd in sorted(muitos.items(), key=lambda x: -x[1]):
             print(f"   {call}: {qtd} registros")
-    else:
-        print(f"{Cores.OK}Nenhum indicativo com múltiplos DMRIDs.{Cores.FIM}")
 
     print()
     print(f"{Cores.INFO}=== Verificação concluída ==={Cores.FIM}")
@@ -243,46 +243,57 @@ def verificar_estrutura():
 
 
 # ============================================================
-#                REMOVER REGISTRO
+#              MODO DE EXCLUSÃO — (--delete)
 # ============================================================
-def remover_registro(chave):
-
-    if not os.path.exists(ARQUIVO):
-        print(f"{Cores.ERRO}Arquivo {ARQUIVO} não encontrado.{Cores.FIM}")
-        return
+def excluir_registro():
 
     linhas = ler_csv()
 
-    if re.match(r"^\d{7}$", chave):
-        tipo = "DMRID"
+    print(f"{Cores.INFO}\n=== MODO DE EXCLUSÃO DE REGISTRO ==={Cores.FIM}")
+    print("Você pode excluir por:")
+    print("1) DMRID")
+    print("2) Indicativo\n")
+
+    escolha = input("Escolha uma opção (1/2): ").strip()
+
+    if escolha == "1":
+        chave = input("Informe o DMRID (7 dígitos, ou vazio se não existe): ").strip()
         idx = buscar_por_dmrid(linhas, chave)
-    else:
-        tipo = "Indicativo"
-        chave = chave.upper()
+
+    elif escolha == "2":
+        chave = input("Informe o Indicativo: ").strip().upper()
         idx = buscar_por_callsign(linhas, chave)
 
-    if idx is None:
-        print(f"{Cores.ERRO}{tipo} '{chave}' não encontrado.{Cores.FIM}")
+    else:
+        print(f"{Cores.ERRO}Opção inválida.{Cores.FIM}")
         return
 
-    registro = linhas[idx]
+    if idx is None:
+        print(f"{Cores.ERRO}Registro não encontrado.{Cores.FIM}")
+        return
 
-    print(f"{Cores.ALERTA}Registro encontrado na linha {idx+1}:{Cores.FIM}")
-    print(",".join(registro))
+    linha = linhas[idx]
 
-    confirmar = input("Deseja realmente excluir este registro? (s/N): ").strip().lower()
+    print(f"\n{Cores.ALERTA}Registro encontrado na linha {idx+1}:{Cores.FIM}")
+    print(" -> " + ",".join(linha))
+
+    confirmar = input("\nConfirmar exclusão? (s/N): ").strip().lower()
+
     if confirmar != "s":
         print("Operação cancelada.")
         return
 
+    # Backup antes de remover
     backup()
 
-    removido = linhas.pop(idx)
+    # Log histórico
+    registrar_exclusao(",".join(linha))
+
+    # Remover do CSV
+    del linhas[idx]
     escrever_csv(linhas)
 
-    registrar_historico(",".join(removido), "(REGISTRO REMOVIDO)")
-
-    print(f"{Cores.OK}Registro removido com sucesso.{Cores.FIM}")
+    print(f"{Cores.OK}Registro excluído com sucesso.{Cores.FIM}")
 
 
 # ============================================================
@@ -390,12 +401,7 @@ def main():
 if __name__ == "__main__":
     if "--check" in sys.argv:
         verificar_estrutura()
-
-    elif "--remove" in sys.argv:
-        if len(sys.argv) < 3:
-            print("Uso: python3 users_manager.py --remove <DMRID|Indicativo>")
-        else:
-            remover_registro(sys.argv[2])
-
+    elif "--delete" in sys.argv:
+        excluir_registro()
     else:
         main()
