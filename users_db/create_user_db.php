@@ -1,117 +1,401 @@
-<?php
+#!/usr/bin/env python3
+import csv
+import os
+import re
+import shutil
+import sys
+from datetime import datetime
 
-// Path to CSV and SQLite database
-$csvFile = '/xlxd/users_db/users_base.csv';
-$dbFile = '/xlxd/users_db/users.db';
+# ============================================================
+#                   CONFIGURAÇÃO DE DIRETÓRIOS
+# ============================================================
 
-// Check if CSV file exists
-if (!file_exists($csvFile)) {
-    die("Error: users_base.csv not found at $csvFile\n");
-}
+LOG_DIR = "log"
+BACKUP_DIR = "backup"
 
-// Create or open SQLite database
-try {
-    $db = new SQLite3($dbFile);
-} catch (Exception $e) {
-    die("Error: Could not open SQLite database: " . $e->getMessage() . "\n");
-}
+os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
-// Create table (drop if exists to ensure fresh data)
-$db->exec('DROP TABLE IF EXISTS users');
-$db->exec('CREATE TABLE users (
-    callsign TEXT PRIMARY KEY,
-    name TEXT,
-    city_state TEXT
-)');
+ARQUIVO = "users_base.csv"
+HISTORICO = os.path.join(LOG_DIR, "users_history.log")
 
-// Mapping of Brazilian states for acronyms
-$estadosBrasil = [
-    'Acre' => 'AC',
-    'Alagoas' => 'AL',
-    'Amapa' => 'AP',
-    'Amazonas' => 'AM',
-    'Bahia' => 'BA',
-    'Ceara' => 'CE',
-    'Distrito Federal' => 'DF',
-    'Espirito Santo' => 'ES',
-    'Goias' => 'GO',
-    'Maranhao' => 'MA',
-    'Mato Grosso' => 'MT',
-    'Mato Grosso do Sul' => 'MS',
-    'Minas Gerais' => 'MG',
-    'Para' => 'PA',
-    'Paraiba' => 'PB',
-    'Parana' => 'PR',
-    'Pernambuco' => 'PE',
-    'Piaui' => 'PI',
-    'Rio de Janeiro' => 'RJ',
-    'Rio Grande do Norte' => 'RN',
-    'Rio Grande do Sul' => 'RS',
-    'Rondonia' => 'RO',
-    'Roraima' => 'RR',
-    'Santa Catarina' => 'SC',
-    'Sao Paulo' => 'SP',
-    'Sergipe' => 'SE',
-    'Tocantins' => 'TO'
-];
 
-// Begin a transaction to speed up inserts
-$db->exec('BEGIN TRANSACTION');
+# ============================================================
+#                      CORES DO TERMINAL
+# ============================================================
+class Cores:
+    OK = "\033[92m"
+    ALERTA = "\033[93m"
+    ERRO = "\033[91m"
+    INFO = "\033[96m"
+    FIM = "\033[0m"
 
-// Read CSV and insert into database
-$handle = fopen($csvFile, 'r');
-if ($handle === false) {
-    die("Error: Could not open users_base.csv\n");
-}
 
-// Skip header row
-fgetcsv($handle);
+# ============================================================
+#                FUNÇÕES DE LEITURA / ESCRITA
+# ============================================================
+def ler_csv():
+    with open(ARQUIVO, newline="", encoding="utf-8") as f:
+        return list(csv.reader(f))
 
-// Prepare insert statement
-$stmt = $db->prepare('INSERT OR REPLACE INTO users (callsign, name, city_state) VALUES (:callsign, :name, :city_state)');
 
-$counter = 0;
-$startTime = microtime(true);
+def escrever_csv(linhas):
+    with open(ARQUIVO, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerows(linhas)
 
-// Process each row
-while (($row = fgetcsv($handle)) !== false) {
-    if (count($row) < 7) continue; // Skip malformed rows
-    $callsign = strtoupper(trim($row[1])); // Callsign (index 1)
-    $fullName = trim($row[2] . ' ' . $row[3]); // fname + surname
-    $cidade = trim($row[4]); // city (index 4)
-    $estado = trim($row[5]); // state (index 5)
 
-    // Check if the state is Brazilian and abbreviate it
-    $estadoAbreviado = $estado;
-    if (array_key_exists($estado, $estadosBrasil)) {
-        $estadoAbreviado = $estadosBrasil[$estado];
-    }
+# ============================================================
+#                    BACKUP E HISTÓRICO
+# ============================================================
+def registrar_historico(antes, depois):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(HISTORICO, "a", encoding="utf-8") as h:
+        h.write(f"[{timestamp}] ALTERAÇÃO\n")
+        h.write(f"ANTES : {antes}\n")
+        h.write(f"DEPOIS: {depois}\n")
+        h.write("-" * 60 + "\n")
 
-    // Combine city and state with ", " as separator
-    $cityState = $cidade . ', ' . $estadoAbreviado;
 
-    if (empty($callsign)) continue; // Skip empty callsigns
+def backup():
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    destino = os.path.join(BACKUP_DIR, f"{ARQUIVO}.bak-{timestamp}")
+    shutil.copyfile(ARQUIVO, destino)
+    print(f"{Cores.INFO}Backup criado em: {destino}{Cores.FIM}")
 
-    $stmt->bindValue(':callsign', $callsign, SQLITE3_TEXT);
-    $stmt->bindValue(':name', $fullName, SQLITE3_TEXT);
-    $stmt->bindValue(':city_state', $cityState, SQLITE3_TEXT);
-    $stmt->execute();
 
-    // Print progress every 1000 rows
-    $counter++;
-    if ($counter % 1000 === 0) {
-        $elapsed = microtime(true) - $startTime;
-        echo "\rProcessed $counter rows in " . number_format($elapsed, 2) . " seconds   ";
-    }
-}
-echo "\n";
-fclose($handle);
+# ============================================================
+#                  BUSCAS ROBUSTAS
+# ============================================================
+def buscar_por_dmrid(linhas, dmrid):
+    if dmrid == "":
+        return None
+    for idx, row in enumerate(linhas):
+        if len(row) < 7:
+            continue
+        if row[0] == dmrid:
+            return idx
+    return None
 
-// Commit the transaction
-$db->exec('COMMIT');
 
-$db->close();
+def buscar_por_callsign(linhas, call):
+    call = call.upper()
+    for idx, row in enumerate(linhas):
+        if len(row) < 7:
+            continue
+        if row[1].upper() == call:
+            return idx
+    return None
 
-$elapsed = microtime(true) - $startTime;
-echo "Database updated successfully. Processed $counter rows in " . number_format($elapsed, 2) . " seconds\n";
-?>
+
+# ============================================================
+#              ENTRADAS / VALIDAÇÕES
+# ============================================================
+def perguntar(msg, default=None):
+    if default:
+        resp = input(f"{msg} [{default}]: ").strip()
+        return resp if resp != "" else default
+    else:
+        return input(msg).strip()
+
+
+def obrigatorio(msg, default=None):
+    while True:
+        valor = perguntar(msg, default)
+        if valor.strip():
+            return valor.strip()
+        print(f"{Cores.ERRO}Campo obrigatório.{Cores.FIM}")
+
+
+# ============================================================
+#                CHECK MODE COM RELATÓRIO TXT
+# ============================================================
+def verificar_estrutura():
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    RELATORIO = os.path.join(LOG_DIR, f"check_report-{timestamp}.txt")
+
+    arquivo_relatorio = open(RELATORIO, "w", encoding="utf-8")
+
+    # Tee: envia saída para terminal e arquivo simultaneamente
+    class Tee:
+        def __init__(self, *saida):
+            self.saida = saida
+
+        def write(self, txt):
+            for s in self.saida:
+                s.write(txt)
+
+        def flush(self):
+            for s in self.saida:
+                s.flush()
+
+    tee = Tee(sys.stdout, arquivo_relatorio)
+    sys.stdout = tee
+
+    print(f"{Cores.INFO}=== VERIFICAÇÃO DO ARQUIVO {ARQUIVO} ==={Cores.FIM}")
+
+    if not os.path.exists(ARQUIVO):
+        print(f"{Cores.ERRO}Arquivo não encontrado.{Cores.FIM}")
+        sys.stdout = sys.__stdout__
+        arquivo_relatorio.close()
+        return
+
+    linhas = ler_csv()
+
+    total = 0
+    ok = 0
+    vazias = []
+    colunas_erradas = []
+    dmrids_invalidos = []
+    calls_invalidos = []
+    duplicados_dmrid = {}
+
+    vistos_dmrid = {}
+
+    # ----------------- ANALISAR ARQUIVO -----------------
+    for i, row in enumerate(linhas, start=1):
+        total += 1
+
+        if len(row) == 0 or all(c.strip() == "" for c in row):
+            vazias.append(i)
+            continue
+
+        if len(row) != 7:
+            colunas_erradas.append((i, len(row)))
+            continue
+
+        dmrid, call, *_ = row
+
+        if dmrid != "" and not re.match(r"^\d{7}$", dmrid):
+            dmrids_invalidos.append((i, dmrid))
+
+        if not re.match(r"^[A-Z0-9]{1,8}$", call.upper()):
+            calls_invalidos.append((i, call))
+
+        if dmrid != "":
+            if dmrid not in vistos_dmrid:
+                vistos_dmrid[dmrid] = i
+            else:
+                duplicados_dmrid.setdefault(dmrid, []).extend(
+                    [vistos_dmrid[dmrid], i]
+                )
+
+        ok += 1
+
+    # Pretty print helper
+    def exibir_lista(titulo, lista, formato=None):
+        if not lista:
+            print(f"{Cores.OK}{titulo}: nenhuma.{Cores.FIM}")
+            return
+        print(f"{Cores.ALERTA}{titulo}:{Cores.FIM}")
+        for item in lista:
+            print("   " + (formato(item) if formato else str(item)))
+
+    # Output
+    print()
+    print(f"{Cores.INFO}Total de linhas: {total}{Cores.FIM}")
+    print(f"{Cores.OK}Linhas válidas: {ok}{Cores.FIM}")
+    print()
+
+    exibir_lista("Linhas vazias", vazias)
+    exibir_lista("Linhas com número errado de colunas",
+                 colunas_erradas,
+                 lambda x: f"Linha {x[0]}: {x[1]} colunas")
+
+    exibir_lista("DMRIDs inválidos",
+                 dmrids_invalidos,
+                 lambda x: f"Linha {x[0]}: '{x[1]}'")
+
+    exibir_lista("Indicativos inválidos",
+                 calls_invalidos,
+                 lambda x: f"Linha {x[0]}: '{x[1]}'")
+
+    exibir_lista("DMRIDs duplicados",
+                 [[k] + v for k, v in duplicados_dmrid.items()],
+                 lambda x: f"DMRID {x[0]} duplicado nas linhas {x[1:]}")
+
+    # --------- Estatísticas (normal, não erro) ----------
+    print()
+    contagem_call = {}
+    for row in linhas:
+        if len(row) == 7:
+            call = row[1].upper()
+            contagem_call.setdefault(call, 0)
+            contagem_call[call] += 1
+
+    muitos = {k: v for k, v in contagem_call.items() if v > 1}
+
+    if muitos:
+        print(f"{Cores.INFO}Indicativos com múltiplos DMRIDs (normal):{Cores.FIM}")
+        for call, qtd in sorted(muitos.items(), key=lambda x: -x[1]):
+            print(f"   {call}: {qtd} registros")
+    else:
+        print(f"{Cores.OK}Nenhum indicativo com múltiplos DMRIDs.{Cores.FIM}")
+
+    print()
+    print(f"{Cores.INFO}=== Verificação concluída ==={Cores.FIM}")
+
+    sys.stdout = sys.__stdout__
+    arquivo_relatorio.close()
+
+    print(f"{Cores.OK}Relatório salvo em: {RELATORIO}{Cores.FIM}")
+
+
+# ============================================================
+#                REMOVER REGISTRO
+# ============================================================
+def remover_registro(chave):
+
+    if not os.path.exists(ARQUIVO):
+        print(f"{Cores.ERRO}Arquivo {ARQUIVO} não encontrado.{Cores.FIM}")
+        return
+
+    linhas = ler_csv()
+
+    if re.match(r"^\d{7}$", chave):
+        tipo = "DMRID"
+        idx = buscar_por_dmrid(linhas, chave)
+    else:
+        tipo = "Indicativo"
+        chave = chave.upper()
+        idx = buscar_por_callsign(linhas, chave)
+
+    if idx is None:
+        print(f"{Cores.ERRO}{tipo} '{chave}' não encontrado.{Cores.FIM}")
+        return
+
+    registro = linhas[idx]
+
+    print(f"{Cores.ALERTA}Registro encontrado na linha {idx+1}:{Cores.FIM}")
+    print(",".join(registro))
+
+    confirmar = input("Deseja realmente excluir este registro? (s/N): ").strip().lower()
+    if confirmar != "s":
+        print("Operação cancelada.")
+        return
+
+    backup()
+
+    removido = linhas.pop(idx)
+    escrever_csv(linhas)
+
+    registrar_historico(",".join(removido), "(REGISTRO REMOVIDO)")
+
+    print(f"{Cores.OK}Registro removido com sucesso.{Cores.FIM}")
+
+
+# ============================================================
+#                  MODO INTERATIVO NORMAL
+# ============================================================
+def main():
+
+    if not os.path.exists(ARQUIVO):
+        print(f"{Cores.ERRO}Erro: arquivo {ARQUIVO} não encontrado.{Cores.FIM}")
+        return
+
+    linhas = ler_csv()
+    linha_existente = None
+    registro_antigo = None
+
+    print(f"{Cores.INFO}\n=== Inclusão / Alteração interativa ===\n{Cores.FIM}")
+
+    # ------------------- DMRID -------------------
+    while True:
+        dmrid = perguntar("DMRID (opcional, 7 dígitos): ")
+        if dmrid == "":
+            break
+        if not re.match(r"^\d{7}$", dmrid):
+            print(f"{Cores.ERRO}DMRID inválido.{Cores.FIM}")
+            continue
+
+        idx = buscar_por_dmrid(linhas, dmrid)
+        if idx is not None:
+            print(f"{Cores.ALERTA}DMRID existe na linha {idx+1}:{Cores.FIM}")
+            print(",".join(linhas[idx]))
+            resp = perguntar("Editar este registro? (s/N): ")
+            if resp.lower() != "s":
+                return
+            linha_existente = idx
+            registro_antigo = linhas[idx][:]
+        break
+
+    # ------------------- INDICATIVO -------------------
+    while True:
+        call = perguntar("Indicativo (obrigatório, até 8 chars): ").upper()
+        if not re.match(r"^[A-Z0-9]{1,8}$", call):
+            print(f"{Cores.ERRO}Indicativo inválido.{Cores.FIM}")
+            continue
+
+        idx = buscar_por_callsign(linhas, call)
+        if idx is not None:
+            if linha_existente is not None and idx != linha_existente:
+                print(f"{Cores.ERRO}Indicativo pertence a outro registro.{Cores.FIM}")
+                return
+
+            print(f"{Cores.ALERTA}Indicativo existe na linha {idx+1}:{Cores.FIM}")
+            print(",".join(linhas[idx]))
+            resp = perguntar("Editar este registro? (s/N): ")
+            if resp.lower() != "s":
+                return
+
+            linha_existente = idx
+            registro_antigo = linhas[idx][:]
+        break
+
+    # ------------------- CAMPOS COMPLEMENTARES -------------------
+    if linha_existente is not None:
+        base = linhas[linha_existente]
+        dmrid = dmrid or base[0]
+        call = call or base[1]
+        nome = obrigatorio("Primeiro nome:", base[2])
+        sobrenome = perguntar("Sobrenome:", base[3])
+        cidade = obrigatorio("Cidade:", base[4])
+        estado = obrigatorio("Estado:", base[5])
+        pais = obrigatorio("País:", base[6])
+    else:
+        nome = obrigatorio("Primeiro nome (obrigatório): ")
+        sobrenome = perguntar("Sobrenome (opcional): ")
+        cidade = obrigatorio("Cidade (obrigatório): ")
+        estado = obrigatorio("Estado (obrigatório): ")
+        pais = obrigatorio("País (obrigatório): ")
+
+    nova_linha = [dmrid, call, nome, sobrenome, cidade, estado, pais]
+
+    print(f"\n{Cores.OK}Linha final:{Cores.FIM}")
+    print(",".join(nova_linha))
+
+    confirmar = perguntar("Confirmar gravação? (s/N): ")
+    if confirmar.lower() != "s":
+        print("Operação cancelada.")
+        return
+
+    backup()
+
+    if linha_existente is not None:
+        linhas[linha_existente] = nova_linha
+        escrever_csv(linhas)
+        registrar_historico(",".join(registro_antigo), ",".join(nova_linha))
+        print(f"{Cores.OK}Registro alterado com sucesso.{Cores.FIM}")
+    else:
+        linhas.append(nova_linha)
+        escrever_csv(linhas)
+        registrar_historico("(NOVO REGISTRO)", ",".join(nova_linha))
+        print(f"{Cores.OK}Registro adicionado com sucesso.{Cores.FIM}")
+
+
+# ============================================================
+#                       ENTRY POINT
+# ============================================================
+if __name__ == "__main__":
+    if "--check" in sys.argv:
+        verificar_estrutura()
+
+    elif "--remove" in sys.argv:
+        if len(sys.argv) < 3:
+            print("Uso: python3 users_manager.py --remove <DMRID|Indicativo>")
+        else:
+            remover_registro(sys.argv[2])
+
+    else:
+        main()
