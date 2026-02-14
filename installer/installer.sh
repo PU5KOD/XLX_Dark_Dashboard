@@ -941,7 +941,7 @@ setup_xlx_files() {
         cp "$SCRIPT_DIR/templates/xlx_log.sh" /usr/local/bin/
         cp "$SCRIPT_DIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
         
-        chmod 644 /etc/systemd/system/xlx_log.service
+        set_systemd_permissions /etc/systemd/system/xlx_log.service "$LOGFILE"
         chmod 755 /usr/local/bin/xlx_log.sh
         chmod 644 /etc/logrotate.d/xlx_logrotate.conf
         
@@ -967,7 +967,7 @@ setup_xlx_files() {
     log_info "$LOGFILE" "Configuring xlxd.service"
     
     cp "$XLXINSTDIR/xlxd/scripts/xlxd.service" /etc/systemd/system/
-    chmod 644 /etc/systemd/system/xlxd.service
+    set_systemd_permissions /etc/systemd/system/xlxd.service "$LOGFILE"
     sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/systemd/system/xlxd.service
     log_success "$LOGFILE" "Systemd service configured"
     msg_success "Systemd service configured"
@@ -993,8 +993,8 @@ setup_xlx_files() {
         if [ -d "$SCRIPT_DIR/templates" ]; then
             cp "$SCRIPT_DIR/templates/update_XLX_db.service" /etc/systemd/system/
             cp "$SCRIPT_DIR/templates/update_XLX_db.timer" /etc/systemd/system/
-            chmod 644 /etc/systemd/system/update_XLX_db.service
-            chmod 644 /etc/systemd/system/update_XLX_db.timer
+            set_systemd_permissions /etc/systemd/system/update_XLX_db.service "$LOGFILE"
+            set_systemd_permissions /etc/systemd/system/update_XLX_db.timer "$LOGFILE"
             systemctl daemon-reload
             systemctl enable --now update_XLX_db.timer
             msg_success "Database updates scheduled via systemd"
@@ -1043,7 +1043,7 @@ install_echo_test() {
     
     cp xlxecho /xlxd/
     cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
-    chmod 644 /etc/systemd/system/xlxecho.service
+    set_systemd_permissions /etc/systemd/system/xlxecho.service "$LOGFILE"
     
     log_success "$LOGFILE" "Echo Test server installed"
     msg_success "Echo Test server installed"

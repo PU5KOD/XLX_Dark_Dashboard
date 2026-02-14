@@ -504,6 +504,8 @@ set_file_permissions() {
     [ -n "$log_file" ] && log_info "$log_file" "Set timer file permissions (644) for: $path"
     
     # PHP files: 644 (rw-r--r--)
+    # Note: PHP CLI scripts with shebang that need direct execution should be
+    # handled separately with 755 permissions before calling this function
     find "$path" -type f -name "*.php" -exec chmod 644 {} \;
     [ -n "$log_file" ] && log_info "$log_file" "Set PHP file permissions (644) for: $path"
     
@@ -543,6 +545,22 @@ set_web_permissions() {
     
     # Set permissions
     set_file_permissions "$path" "$log_file"
+    
+    return 0
+}
+
+# Set systemd service file permissions
+set_systemd_permissions() {
+    local service_file="$1"
+    local log_file="${2:-}"
+    
+    if [ ! -f "$service_file" ]; then
+        [ -n "$log_file" ] && log_error "$log_file" "Service file does not exist: $service_file"
+        return 1
+    fi
+    
+    chmod 644 "$service_file"
+    [ -n "$log_file" ] && log_info "$log_file" "Set systemd service permissions (644) for: $service_file"
     
     return 0
 }
@@ -653,7 +671,7 @@ export -f prompt_user prompt_confirm
 export -f show_header show_subheader show_section show_box
 export -f init_log log_write log_info log_success log_warning log_error log_command
 export -f countdown spinner check_status
-export -f set_file_permissions set_web_permissions
+export -f set_file_permissions set_web_permissions set_systemd_permissions
 export -f validate_email validate_domain validate_ip validate_port
 export -f check_root check_internet command_exists check_disk_space
 
