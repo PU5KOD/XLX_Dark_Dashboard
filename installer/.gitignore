@@ -1,0 +1,20 @@
+# Ignore log files
+log/*.log
+log/*.txt
+
+# But keep the log directory
+!log/.gitkeep
+
+# Ignore backup files
+*.bak
+*~
+*.swp
+*.swo
+
+# Ignore downloaded files during testing
+*.tar.gz
+*.zip
+*.deb
+
+# Ignore test outputs
+test_*
