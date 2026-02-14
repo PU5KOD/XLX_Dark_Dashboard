@@ -504,8 +504,9 @@ set_file_permissions() {
     [ -n "$log_file" ] && log_info "$log_file" "Set timer file permissions (644) for: $path"
     
     # PHP files: 644 (rw-r--r--)
-    # Note: PHP CLI scripts with shebang that need direct execution should be
-    # handled separately with 755 permissions before calling this function
+    # Note: PHP CLI scripts with shebang (e.g., #!/usr/bin/env php) that need 
+    # direct execution should be set to 755 separately before calling this function
+    # Example: chmod 755 /path/to/cli-script.php
     find "$path" -type f -name "*.php" -exec chmod 644 {} \;
     [ -n "$log_file" ] && log_info "$log_file" "Set PHP file permissions (644) for: $path"
     
