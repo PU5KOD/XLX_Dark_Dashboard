@@ -79,8 +79,7 @@ function getUserData($callsign) {
                              <td align="center">
                                 <form name="frmFilterCallSign" method="post" action="./index.php">
                                    <input type="hidden" name="do" value="SetFilter" />
-                                   <input type="text" class="FilterField" value="' . $_SESSION['FilterCallSign'] . '" name="txtSetCallsignFilter"
-placeholder="Callsign" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
+                                   <input type="text" class="FilterField" value="' . $_SESSION['FilterCallSign'] . '" name="txtSetCallsignFilter" placeholder="Callsign" onfocus="SuspendPageRefresh();" onblur="setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');" />
                                    <input type="submit" value="Apply" class="FilterSubmit" />
                                 </form>
                              </td>';
