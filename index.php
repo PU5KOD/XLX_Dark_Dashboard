@@ -1,4 +1,5 @@
 <?php
+session_start();
 if (file_exists("./pgs/functions.php")) {
     require_once("./pgs/functions.php");
 } else {
@@ -105,27 +106,64 @@ if (!$isAjax) {
 
     if ($PageOptions['PageRefreshActive']) {
         echo '
-        <script src="./js/jquery-1.12.4.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script>
             var PageRefresh;
 
+            function updateTitle() {
+                var connected = $("#menubar a[href*=\'repeaters\']").text().match(/\((\d+)\)/);
+                var stations  = connected ? connected[1] : "0";
+                var baseTitle = "' . addslashes($PageOptions['CustomTXT']) . '";
+                if (stations > 0) {
+                    document.title = "(" + stations + ") " + baseTitle;
+                } else {
+                    document.title = baseTitle;
+                }
+            }
+
             function ReloadPage() {
                 var url = "./index.php?show=' . urlencode($show) . '";
+                // Captura filtros ANTES de substituir o body
+                var csFilter  = $("input[name=\'txtSetCallsignFilter\']").val() || "";
+                var modFilter = $("input[name=\'txtSetModuleFilter\']").val() || "";
+                var prFilter  = $("input[name=\'txtSetProtocolFilter\']").val() || "";
                 $.get(url, function(data) {
                     console.log("Updating body content...");
+                    // Preserva o tema antes de substituir o body
+                    var theme = localStorage.getItem("xlx-theme");
                     $("body").html(data);
+                    // Reaplica tema e reinjecta botão após reload
+                    if (theme === "light") document.body.classList.add("light");
+                    if (!document.getElementById("theme-toggle")) {
+                        var btn = document.createElement("button");
+                        btn.id = "theme-toggle";
+                        btn.title = "Toggle dark/light mode";
+                        btn.textContent = (theme === "light") ? "☀️" : "🌙";
+                        btn.addEventListener("click", function() {
+                            var isLight = document.body.classList.toggle("light");
+                            this.textContent = isLight ? "☀️" : "🌙";
+                            localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
+                        });
+                        document.body.appendChild(btn);
+                    }
+                    updateTitle();
                 })
                     .fail(function(jqXHR, textStatus, errorThrown) {
                         console.error("Error in AJAX request: " + textStatus + ", " + errorThrown);
                     })
                     .always(function() {
-                        PageRefresh = setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');
+                        if (!csFilter && !modFilter && !prFilter) {
+                            PageRefresh = setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');
+                        }
                     });
             }';
 
-        if ($show === '' || ($show !== 'liveircddb' && $show !== 'reflectors' && $show !== 'interlinks')) {
-            echo '
+        if ($show === '' || ($show !== 'liveircddb' && $show !== 'reflectors' && $show !== 'interlinks' && $show !== 'modules')) {
+            $hasFilter = !empty($_SESSION['FilterCallSign']) || !empty($_SESSION['FilterModule']) || !empty($_SESSION['FilterProtocol']);
+            if (!$hasFilter) {
+                echo '
             PageRefresh = setTimeout(ReloadPage, ' . $PageOptions['PageRefreshDelay'] . ');';
+            }
         }
         echo '
 
@@ -151,7 +189,8 @@ if (!$isAjax) {
             <table border="0">
                 <tr>
                     <td><a href="./index.php" class="menulink<?php if ($show === '') { echo 'active'; } ?>">Recent Activity</a></td>
-                    <td><a href="./index.php?show=repeaters" class="menulink<?php if ($show === 'repeaters') { echo 'active'; } ?>">Connected Stations (<?php echo $Reflector->NodeCount(); ?>)</a></td>
+                    <td><a href="./index.php?show=repeaters" class="menulink<?php if ($show === 'repeaters') { echo 'active'; } ?>"
+			>Connected Stations (<?php echo $Reflector->NodeCount(); ?>)</a></td>
                     <?php
                     if ($PageOptions['Peers']['Show']) {
                         echo '
@@ -203,15 +242,35 @@ if (!$isAjax) {
         }
         ?>
         <div style="width:100%;text-align:center;margin-top:50px;color:#c3dcba;">
-            <br /><a href="./log/index.php" style="text-decoration: none; color: inherit;">D-Star</a> Multiprotocol Reflector <b><?php echo $Reflector->GetReflectorName(); ?></b> v<?php echo $Reflector->GetVersion();?> - Dashboard v<?php echo $PageOptions['DashboardVersion']; ?> | <?php echo $PageOptions['Footnote']; ?>
+            <br /><a href="./log/index.php" style="text-decoration: none; color: inherit;">D-Star</a> Multiprotocol Reflector <b><?php
+		echo $Reflector->GetReflectorName(); ?></b> v<?php
+		echo $Reflector->GetVersion();?> - Dashboard v<?php
+		echo $PageOptions['DashboardVersion']; ?> | <?php echo $PageOptions['Footnote']; ?>
             <br />Uptime: <span id="suptime"><?php echo FormatSeconds($Reflector->GetServiceUptime());?></span>
             <?php echo '<p><a href="https://github.com/PU5KOD/XLX_Installer"><center><img src="./img/Debian_white.png" width="50"></center></a></p>';?>
         </div>
-    </div>
+        </div>
 <?php
 if (!$isAjax) {
-    // If it is not an AJAX request, close the <body> and <html> tags
-    echo '</body>
+    echo '
+<button id="theme-toggle" title="Toggle dark/light mode">🌙</button>
+<script>
+(function() {
+    // Apply saved theme immediately to avoid flash
+    var saved = localStorage.getItem("xlx-theme");
+    if (saved === "light") {
+        document.body.classList.add("light");
+        document.getElementById("theme-toggle").textContent = "☀️";
+    }
+
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        var isLight = document.body.classList.toggle("light");
+        this.textContent = isLight ? "☀️" : "🌙";
+        localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
+    });
+})();
+</script>
+</body>
 </html>';
 }
 ?>
