@@ -129,23 +129,7 @@ if (!$isAjax) {
                 var prFilter  = $("input[name=\'txtSetProtocolFilter\']").val() || "";
                 $.get(url, function(data) {
                     console.log("Updating body content...");
-                    // Preserva o tema antes de substituir o body
-                    var theme = localStorage.getItem("xlx-theme");
                     $("body").html(data);
-                    // Reaplica tema e reinjecta botão após reload
-                    if (theme === "light") document.body.classList.add("light");
-                    if (!document.getElementById("theme-toggle")) {
-                        var btn = document.createElement("button");
-                        btn.id = "theme-toggle";
-                        btn.title = "Toggle dark/light mode";
-                        btn.textContent = (theme === "light") ? "☀️" : "🌙";
-                        btn.addEventListener("click", function() {
-                            var isLight = document.body.classList.toggle("light");
-                            this.textContent = isLight ? "☀️" : "🌙";
-                            localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
-                        });
-                        document.body.appendChild(btn);
-                    }
                     updateTitle();
                 })
                     .fail(function(jqXHR, textStatus, errorThrown) {
@@ -252,25 +236,8 @@ if (!$isAjax) {
         </div>
 <?php
 if (!$isAjax) {
-    echo '
-<button id="theme-toggle" title="Toggle dark/light mode">🌙</button>
-<script>
-(function() {
-    // Apply saved theme immediately to avoid flash
-    var saved = localStorage.getItem("xlx-theme");
-    if (saved === "light") {
-        document.body.classList.add("light");
-        document.getElementById("theme-toggle").textContent = "☀️";
-    }
-
-    document.getElementById("theme-toggle").addEventListener("click", function() {
-        var isLight = document.body.classList.toggle("light");
-        this.textContent = isLight ? "☀️" : "🌙";
-        localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
-    });
-})();
-</script>
-</body>
+    // If it is not an AJAX request, close the <body> and <html> tags
+    echo '</body>
 </html>';
 }
 ?>
