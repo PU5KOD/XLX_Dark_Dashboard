@@ -36,47 +36,54 @@ if (isset($_GET['do'])) {
 }
 
 
-// Reads the log tail to detect an active TX (Opening stream not yet followed by Closing stream)
-function getActiveTx() {
+// Reads the log tail and returns ALL modules currently transmitting (not yet closed)
+// Returns array keyed by module letter: ['D' => ['callsign' => 'PU5KOD', 'since' => 1234567], ...]
+function getAllActiveTx() {
     $logFile = '/var/log/xlx.log';
-    if (!file_exists($logFile) || !is_readable($logFile)) return null;
+    if (!file_exists($logFile) || !is_readable($logFile)) return [];
 
-    // Read last 8KB — enough to catch any ongoing transmission
+    // Read last 16KB — enough to cover simultaneous TXs across modules
     $fp = fopen($logFile, 'r');
     fseek($fp, 0, SEEK_END);
     $size = ftell($fp);
-    $chunk = min($size, 8192);
+    $chunk = min($size, 16384);
     fseek($fp, -$chunk, SEEK_END);
     $content = fread($fp, $chunk);
     fclose($fp);
 
-    // Scan lines in reverse order
-    $lines = array_reverse(explode("\n", trim($content)));
+    // Scan lines in reverse — first Opening found per module (without a Closing after it) = active TX
+    $lines        = array_reverse(explode("\n", trim($content)));
     $closedModules = [];
+    $activeTxMap   = [];
 
     foreach ($lines as $line) {
-        // Closing stream of module D
         if (preg_match('/Closing stream of module ([A-Z])/', $line, $m)) {
-            $closedModules[$m[1]] = true;
+            // Mark module as closed (we're going backwards, so this closing comes AFTER an opening)
+            if (!isset($closedModules[$m[1]])) {
+                $closedModules[$m[1]] = true;
+            }
             continue;
         }
-        // Opening stream on module D for client PU5KOD  B with sid 55676
-        // Log format: "26 Feb, 10:19:51: Opening stream..."
         if (preg_match('/^(\d+) (\w+), (\d+:\d+:\d+): Opening stream on module ([A-Z]) for client (\S+)/', $line, $m)) {
             $module = $m[4];
-            if (isset($closedModules[$module])) continue; // already closed
-            // Build unambiguous string: "26 Feb 2026 10:19:51"
+            // Skip if already found (we only want the most recent opening per module)
+            if (isset($activeTxMap[$module])) continue;
+            // Skip if this opening was already closed
+            if (isset($closedModules[$module])) {
+                // Unmark so next opening of same module can be evaluated fresh
+                unset($closedModules[$module]);
+                continue;
+            }
             $dateStr = $m[1] . ' ' . $m[2] . ' ' . date('Y') . ' ' . $m[3];
             $dt = DateTime::createFromFormat('d M Y H:i:s', $dateStr);
-            if (!$dt) return null;
-            return [
+            if (!$dt) continue;
+            $activeTxMap[$module] = [
                 'callsign' => trim($m[5]),
-                'module'   => $module,
                 'since'    => $dt->getTimestamp(),
             ];
         }
     }
-    return null;
+    return $activeTxMap;
 }
 
 // Function to get user data from SQLite database
@@ -158,11 +165,18 @@ function getUserData($callsign) {
              <?php
              $Reflector->LoadFlags();
              $odd = "";
-             // Detect active TX once before the loop (reads log)
-             $activeTx   = getActiveTx();
-             $isTx       = ($activeTx !== null);
-             $txSince    = $isTx ? $activeTx['since'] : 0;
-             $txCallsign = $isTx ? $activeTx['callsign'] : '';
+             // Detect all active TXs once before the loop (reads log)
+             $activeTxMap   = getAllActiveTx();
+             // For tab title: use the most recently started TX
+             $primaryTx     = !empty($activeTxMap)
+                 ? array_reduce($activeTxMap, function($carry, $item) {
+                     return (!$carry || $item['since'] > $carry['since']) ? $item : $carry;
+                   })
+                 : null;
+             $isTx          = ($primaryTx !== null);
+             $txSince       = $isTx ? $primaryTx['since'] : 0;
+             $txCallsign    = $isTx ? $primaryTx['callsign'] : '';
+             $checkedModules = []; // track first occurrence per module
              for ($i = 0; $i < $Reflector->StationCount(); $i++) {
                  $ShowThisStation = true;
                  if ($PageOptions['UserPage']['ShowFilter']) {
@@ -182,10 +196,15 @@ function getUserData($callsign) {
                  }
                  if ($ShowThisStation) {
                      if ($odd == "#252525") { $odd = "#2c2c2c"; } else { $odd = "#252525"; }
-                     // TX highlight only applies to the first station (i==0)
-                     $rowIsTx = ($i == 0 && $isTx);
-                     $rowBg    = $rowIsTx ? "#4a2000" : $odd;
-                     $rowClass = $rowIsTx ? " class=\"tx-active\"" : "";
+                     // TX highlight only on the first occurrence of each module in the list
+                     $stationModule = $Reflector->Stations[$i]->GetModule();
+                     $isFirstOfModule = !isset($checkedModules[$stationModule]);
+                     if ($isFirstOfModule) $checkedModules[$stationModule] = true;
+                     $rowTxInfo = ($isFirstOfModule && isset($activeTxMap[$stationModule])) ? $activeTxMap[$stationModule] : null;
+                     $rowIsTx   = ($rowTxInfo !== null);
+                     $rowSince  = $rowIsTx ? $rowTxInfo['since'] : 0;
+                     $rowBg     = $rowIsTx ? "#4a2000" : $odd;
+                     $rowClass  = $rowIsTx ? " class=\"tx-active\"" : "";
                      echo '
                  <tr height="30" bgcolor="' . $rowBg . '"' . $rowClass . ' onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\'' . $rowBg . '\'">
                     <td width="80" align="center"><a href="https://www.qrz.com/db/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the QRZ for this callsign" target="_blank">' . $Reflector->Stations[$i]->GetCallsignOnly() . '</a></td>
@@ -208,7 +227,7 @@ function getUserData($callsign) {
                      }
                      echo '</td>
                     <td width="170" align="center">' . ($rowIsTx
-                        ? '<span class="tx-timer" data-since="' . $txSince . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
+                        ? '<span class="tx-timer" data-since="' . $rowSince . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
                         : @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime())) . '</td>
                     <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
                     <td align="center" width="30" valign="middle">';
@@ -264,6 +283,7 @@ function getUserData($callsign) {
 
 <script>
 (function() {
+    // Primary TX for tab title (most recently started)
     var txSince    = <?php echo json_encode($isTx ? $txSince : null); ?>;
     var txCallsign = <?php echo json_encode($isTx ? $txCallsign : ''); ?>;
 
@@ -275,11 +295,10 @@ function getUserData($callsign) {
     }
 
     function updateTabTitle(txStr) {
-        // Read station count directly from the menubar (same source as updateTitle)
-        var connected = document.querySelector('#menubar a[href*="repeaters"]');
+        var connected  = document.querySelector('#menubar a[href*="repeaters"]');
         var countMatch = connected ? connected.textContent.match(/\((\d+)\)/) : null;
-        var stations = countMatch ? '(' + countMatch[1] + ')' : '';
-        var base = '<?php echo addslashes($PageOptions['CustomTXT']); ?>';
+        var stations   = countMatch ? '(' + countMatch[1] + ')' : '';
+        var base       = '<?php echo addslashes($PageOptions['CustomTXT']); ?>';
         if (txStr && txCallsign) {
             document.title = stations + ' ' + txCallsign + ' ' + txStr + '...';
         } else {
@@ -288,15 +307,13 @@ function getUserData($callsign) {
     }
 
     function tick() {
-        if (txSince) {
-            var txStr = formatTx(txSince);
-            document.querySelectorAll('.tx-timer').forEach(function(el) {
-                el.textContent = txStr;
-            });
-            updateTabTitle(txStr);
-        } else {
-            updateTabTitle(null);
-        }
+        // Each tx-timer row has its own data-since — update independently
+        document.querySelectorAll('.tx-timer').forEach(function(el) {
+            var since = parseInt(el.getAttribute('data-since'));
+            el.textContent = formatTx(since);
+        });
+        // Tab title uses the primary (most recent) TX
+        updateTabTitle(txSince ? formatTx(txSince) : null);
     }
 
     // Clear any previous interval left by AJAX reload
