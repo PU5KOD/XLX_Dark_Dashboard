@@ -77,6 +77,8 @@ function getAllActiveTx() {
             $dateStr = $m[1] . ' ' . $m[2] . ' ' . date('Y') . ' ' . $m[3];
             $dt = DateTime::createFromFormat('d M Y H:i:s', $dateStr);
             if (!$dt) continue;
+            // Ignore TX older than 5 minutes — log may have lost the Closing entry
+            if ((time() - $dt->getTimestamp()) > 300) continue;
             $activeTxMap[$module] = [
                 'callsign' => trim($m[5]),
                 'since'    => $dt->getTimestamp(),
