@@ -111,6 +111,8 @@ if (!$isAjax) {
             var PageRefresh;
 
             function updateTitle() {
+                // If TX timer is running, let it control the title
+                if (window.txActive) return;
                 var connected = $("#menubar a[href*=\'repeaters\']").text().match(/\((\d+)\)/);
                 var stations  = connected ? connected[1] : "0";
                 var baseTitle = "' . addslashes($PageOptions['CustomTXT']) . '";
@@ -129,7 +131,28 @@ if (!$isAjax) {
                 var prFilter  = $("input[name=\'txtSetProtocolFilter\']").val() || "";
                 $.get(url, function(data) {
                     console.log("Updating body content...");
+                    // Clear TX timer interval before replacing body
+                    if (window.txTimerInterval) {
+                        clearInterval(window.txTimerInterval);
+                        window.txTimerInterval = null;
+                    }
+                    // Preserva o tema antes de substituir o body
+                    var theme = localStorage.getItem("xlx-theme");
                     $("body").html(data);
+                    // Reaplica tema e reinjecta botão após reload
+                    if (theme === "light") document.body.classList.add("light");
+                    if (!document.getElementById("theme-toggle")) {
+                        var btn = document.createElement("button");
+                        btn.id = "theme-toggle";
+                        btn.title = "Toggle dark/light mode";
+                        btn.textContent = (theme === "light") ? "☀️" : "🌙";
+                        btn.addEventListener("click", function() {
+                            var isLight = document.body.classList.toggle("light");
+                            this.textContent = isLight ? "☀️" : "🌙";
+                            localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
+                        });
+                        document.body.appendChild(btn);
+                    }
                     updateTitle();
                 })
                     .fail(function(jqXHR, textStatus, errorThrown) {
@@ -236,8 +259,25 @@ if (!$isAjax) {
         </div>
 <?php
 if (!$isAjax) {
-    // If it is not an AJAX request, close the <body> and <html> tags
-    echo '</body>
+    echo '
+<button id="theme-toggle" title="Toggle dark/light mode">🌙</button>
+<script>
+(function() {
+    // Apply saved theme immediately to avoid flash
+    var saved = localStorage.getItem("xlx-theme");
+    if (saved === "light") {
+        document.body.classList.add("light");
+        document.getElementById("theme-toggle").textContent = "☀️";
+    }
+
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        var isLight = document.body.classList.toggle("light");
+        this.textContent = isLight ? "☀️" : "🌙";
+        localStorage.setItem("xlx-theme", isLight ? "light" : "dark");
+    });
+})();
+</script>
+</body>
 </html>';
 }
 ?>
