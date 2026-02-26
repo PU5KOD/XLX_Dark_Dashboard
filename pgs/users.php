@@ -165,17 +165,27 @@ function getUserData($callsign) {
              <?php
              $Reflector->LoadFlags();
              $odd = "";
-             // Detect all active TXs once before the loop (reads log)
-             $activeTxMap   = getAllActiveTx();
-             // For tab title: use the most recently started TX
-             $primaryTx     = !empty($activeTxMap)
+             // Detect all active TXs from log
+             $activeTxMap = getAllActiveTx();
+             // Replace log callsigns with the actual user callsign (first station of each module in the list)
+             foreach ($activeTxMap as $module => &$txInfo) {
+                 for ($s = 0; $s < $Reflector->StationCount(); $s++) {
+                     if ($Reflector->Stations[$s]->GetModule() === $module) {
+                         $txInfo['callsign'] = $Reflector->Stations[$s]->GetCallsignOnly();
+                         break;
+                     }
+                 }
+             }
+             unset($txInfo);
+             // For tab title: TX with least elapsed time (highest since = most recently started)
+             $primaryTx = !empty($activeTxMap)
                  ? array_reduce($activeTxMap, function($carry, $item) {
-                     return (!$carry || $item['since'] > $carry['since']) ? $item : $carry;
+                       return (!$carry || $item['since'] > $carry['since']) ? $item : $carry;
                    })
                  : null;
-             $isTx          = ($primaryTx !== null);
-             $txSince       = $isTx ? $primaryTx['since'] : 0;
-             $txCallsign    = $isTx ? $primaryTx['callsign'] : '';
+             $isTx       = ($primaryTx !== null);
+             $txSince    = $isTx ? $primaryTx['since'] : 0;
+             $txCallsign = $isTx ? $primaryTx['callsign'] : '';
              $checkedModules = []; // track first occurrence per module
              for ($i = 0; $i < $Reflector->StationCount(); $i++) {
                  $ShowThisStation = true;
