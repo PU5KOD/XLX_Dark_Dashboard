@@ -157,9 +157,7 @@ function getUserData($callsign) {
                          echo '<a href="#" class="tip"><img src="./img/flags/' . $Flag . '.png" height="15" alt="' . $Name . '" /><span>' . $Name . '</span></a>';
                      }
                      echo '</td>
-                    <td width="170" align="center">' . ($isTx
-                        ? '<span class="tx-timer" data-since="' . $Reflector->Stations[$i]->GetLastHeardTime() . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
-                        : @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime())) . '</td>
+                    <td width="170" align="center">' . @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime()) . '</td>
                     <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
                     <td align="center" width="30" valign="middle">';
                       if ($isTx) {
@@ -211,20 +209,3 @@ function getUserData($callsign) {
    }
    ?>
 </table>
-
-<script>
-(function() {
-    function tickTxTimers() {
-        var now = Math.floor(Date.now() / 1000);
-        document.querySelectorAll('.tx-timer').forEach(function(el) {
-            var since = parseInt(el.getAttribute('data-since'));
-            var elapsed = now - since;
-            var m = Math.floor(elapsed / 60);
-            var s = elapsed % 60;
-            el.textContent = 'TXing ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + 's';
-        });
-    }
-    tickTxTimers();
-    setInterval(tickTxTimers, 1000);
-})();
-</script>
