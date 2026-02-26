@@ -49,3 +49,5 @@ for ($i = 1; $i <= $NumberOfModules; $i++) {
 ?>
 
 </table>
+
+<?php require_once("./pgs/chart.php"); ?>

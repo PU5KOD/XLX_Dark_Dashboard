@@ -194,9 +194,10 @@ for ($i=0;$i<$Reflector->NodeCount();$i++) {
         $callsign = $Reflector->Nodes[$i]->GetCallSign();
         $userInfo = getUserData($callsign);
         echo $userInfo['name'];
+        $connectTimestamp = $Reflector->Nodes[$i]->GetConnectTime();
         echo '</td>
             <td align="center">'.date("d/m/Y, H:i:s", $Reflector->Nodes[$i]->GetLastHeardTime()).'</td>
-            <td align="center">'.FormatSeconds(time()-$Reflector->Nodes[$i]->GetConnectTime()).'</td>
+            <td align="center"><span class="live-duration" data-since="'.$connectTimestamp.'">'.FormatSeconds(time()-$connectTimestamp).'</span></td>
             <td align="center">'.$Reflector->Nodes[$i]->GetProtocol().'</td>
             <td align="center">'.$Reflector->Nodes[$i]->GetLinkedModule().'</td>';
         if ($PageOptions['RepeatersPage']['IPModus'] != 'HideIP') {
@@ -222,3 +223,26 @@ for ($i=0;$i<$Reflector->NodeCount();$i++) {
 ?>
 
 </table>
+
+<script>
+function formatDuration(seconds) {
+    var d = Math.floor(seconds / 86400);
+    var h = Math.floor((seconds % 86400) / 3600);
+    var m = Math.floor((seconds % 3600) / 60);
+    var s = seconds % 60;
+    if (d > 0) return d + "d " + String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    if (h > 0) return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+
+function tickDurations() {
+    var now = Math.floor(Date.now() / 1000);
+    document.querySelectorAll(".live-duration").forEach(function(el) {
+        var since = parseInt(el.getAttribute("data-since"));
+        el.textContent = formatDuration(now - since);
+    });
+}
+
+setInterval(tickDurations, 1000);
+tickDurations();
+</script>

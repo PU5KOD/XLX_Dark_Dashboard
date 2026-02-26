@@ -85,7 +85,7 @@ function getUserData($callsign) {
                              </td>';
                  if (($_SESSION['FilterModule'] != null) || ($_SESSION['FilterCallSign'] != null)) {
                      echo '
-                        <td><a href="./index.php?do=resetfilter" class="smalllink">Desativar Filtros</a></td>';
+                        <td><a href="./index.php?do=resetfilter" class="smalllink">Disable Filters</a></td>';
                  }
                  echo '
                              <td align="center" style="padding-right:3px;">
@@ -133,8 +133,11 @@ function getUserData($callsign) {
                  }
                  if ($ShowThisStation) {
                      if ($odd == "#252525") { $odd = "#2c2c2c"; } else { $odd = "#252525"; }
+                     $isTx = ($i == 0 && $Reflector->Stations[$i]->GetLastHeardTime() > (time() - 10));
+                     $rowBg = $isTx ? "#4a2000" : $odd;
+                     $rowClass = $isTx ? " class=\"tx-active\"" : "";
                      echo '
-                 <tr height="30" bgcolor="' . $odd . '" onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\'' . $odd . '\'">
+                 <tr height="30" bgcolor="' . $rowBg . '"' . $rowClass . ' onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\'' . $rowBg . '\'">
                     <td width="80" align="center"><a href="https://www.qrz.com/db/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the QRZ for this callsign" target="_blank">' . $Reflector->Stations[$i]->GetCallsignOnly() . '</a></td>
                     <td width="50" align="center">' . $Reflector->Stations[$i]->GetSuffix() . '</td>';
                      // Fetch user data from SQLite database
@@ -154,10 +157,12 @@ function getUserData($callsign) {
                          echo '<a href="#" class="tip"><img src="./img/flags/' . $Flag . '.png" height="15" alt="' . $Name . '" /><span>' . $Name . '</span></a>';
                      }
                      echo '</td>
-                    <td width="170" align="center">' . @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime()) . '</td>
+                    <td width="170" align="center">' . ($isTx
+                        ? '<span class="tx-timer" data-since="' . $Reflector->Stations[$i]->GetLastHeardTime() . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
+                        : @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime())) . '</td>
                     <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
                     <td align="center" width="30" valign="middle">';
-                      if ($i == 0 && $Reflector->Stations[$i]->GetLastHeardTime() > (time() - 10)) {
+                      if ($isTx) {
                           echo '<img src="./img/tx.gif" style="margin-top:3px;" height="20"/>';
                       } else {
                           echo ($Reflector->Stations[$i]->GetModule());
@@ -206,3 +211,20 @@ function getUserData($callsign) {
    }
    ?>
 </table>
+
+<script>
+(function() {
+    function tickTxTimers() {
+        var now = Math.floor(Date.now() / 1000);
+        document.querySelectorAll('.tx-timer').forEach(function(el) {
+            var since = parseInt(el.getAttribute('data-since'));
+            var elapsed = now - since;
+            var m = Math.floor(elapsed / 60);
+            var s = elapsed % 60;
+            el.textContent = 'TXing ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + 's';
+        });
+    }
+    tickTxTimers();
+    setInterval(tickTxTimers, 1000);
+})();
+</script>
