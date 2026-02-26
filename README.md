@@ -24,7 +24,7 @@ In addition to the standard information, the following improvements were made:
 - **Responsive layout** — page content and menu bar are now centrally aligned and properly bounded on wide screens and mobile devices;
 - **jQuery upgraded** to version 3.7.1 via CDN;
 - **Browser tab badge** — the page title now shows the number of connected stations in parentheses, e.g. `(18) XLX123 by PU5KOD`, updating automatically on every refresh;
-- **Interface translated to English** — all labels, buttons and filter controls across all tabs are now in English.
+- **Interface in English** — all labels, buttons and filter controls across all tabs are in English.
 
 ### Connected Stations Tab
 - **Live connection duration counter** — the connection time for each node in the *Connected Stations* tab now updates every second in real time, without requiring a page reload.
@@ -60,8 +60,6 @@ In addition to the standard information, the following improvements were made:
 | `pgs/repeaters.php` | Connected Stations tab — live duration counter |
 | `pgs/modules.php` | Active Modules tab — includes the activity chart |
 | `pgs/chart.php` | Module activity chart — log parsing, Chart.js rendering, AJAX endpoint |
-| `pgs/repeaters_band-col.php` | Connected Stations (band column variant) — English labels |
-| `pgs/repeaters_no-band-col.php` | Connected Stations (no band column variant) — English labels |
 
 ---
 
