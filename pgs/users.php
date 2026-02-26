@@ -35,6 +35,50 @@ if (isset($_GET['do'])) {
    }
 }
 
+
+// Reads the log tail to detect an active TX (Opening stream not yet followed by Closing stream)
+function getActiveTx() {
+    $logFile = '/var/log/xlx.log';
+    if (!file_exists($logFile) || !is_readable($logFile)) return null;
+
+    // Read last 8KB — enough to catch any ongoing transmission
+    $fp = fopen($logFile, 'r');
+    fseek($fp, 0, SEEK_END);
+    $size = ftell($fp);
+    $chunk = min($size, 8192);
+    fseek($fp, -$chunk, SEEK_END);
+    $content = fread($fp, $chunk);
+    fclose($fp);
+
+    // Scan lines in reverse order
+    $lines = array_reverse(explode("\n", trim($content)));
+    $closedModules = [];
+
+    foreach ($lines as $line) {
+        // Closing stream of module D
+        if (preg_match('/Closing stream of module ([A-Z])/', $line, $m)) {
+            $closedModules[$m[1]] = true;
+            continue;
+        }
+        // Opening stream on module D for client PU5KOD  B with sid 55676
+        // Log format: "26 Feb, 10:19:51: Opening stream..."
+        if (preg_match('/^(\d+) (\w+), (\d+:\d+:\d+): Opening stream on module ([A-Z]) for client (\S+)/', $line, $m)) {
+            $module = $m[4];
+            if (isset($closedModules[$module])) continue; // already closed
+            // Build unambiguous string: "26 Feb 2026 10:19:51"
+            $dateStr = $m[1] . ' ' . $m[2] . ' ' . date('Y') . ' ' . $m[3];
+            $dt = DateTime::createFromFormat('d M Y H:i:s', $dateStr);
+            if (!$dt) return null;
+            return [
+                'callsign' => trim($m[5]),
+                'module'   => $module,
+                'since'    => $dt->getTimestamp(),
+            ];
+        }
+    }
+    return null;
+}
+
 // Function to get user data from SQLite database
 function getUserData($callsign) {
     $dbFile = '/xlxd/users_db/users.db';
@@ -114,6 +158,11 @@ function getUserData($callsign) {
              <?php
              $Reflector->LoadFlags();
              $odd = "";
+             // Detect active TX once before the loop (reads log)
+             $activeTx   = getActiveTx();
+             $isTx       = ($activeTx !== null);
+             $txSince    = $isTx ? $activeTx['since'] : 0;
+             $txCallsign = $isTx ? $activeTx['callsign'] : '';
              for ($i = 0; $i < $Reflector->StationCount(); $i++) {
                  $ShowThisStation = true;
                  if ($PageOptions['UserPage']['ShowFilter']) {
@@ -133,9 +182,10 @@ function getUserData($callsign) {
                  }
                  if ($ShowThisStation) {
                      if ($odd == "#252525") { $odd = "#2c2c2c"; } else { $odd = "#252525"; }
-                     $isTx = ($i == 0 && $Reflector->Stations[$i]->GetLastHeardTime() > (time() - 10));
-                     $rowBg = $isTx ? "#4a2000" : $odd;
-                     $rowClass = $isTx ? " class=\"tx-active\"" : "";
+                     // TX highlight only applies to the first station (i==0)
+                     $rowIsTx = ($i == 0 && $isTx);
+                     $rowBg    = $rowIsTx ? "#4a2000" : $odd;
+                     $rowClass = $rowIsTx ? " class=\"tx-active\"" : "";
                      echo '
                  <tr height="30" bgcolor="' . $rowBg . '"' . $rowClass . ' onMouseOver="this.bgColor=\'#586553\';" onMouseOut="this.bgColor=\'' . $rowBg . '\'">
                     <td width="80" align="center"><a href="https://www.qrz.com/db/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the QRZ for this callsign" target="_blank">' . $Reflector->Stations[$i]->GetCallsignOnly() . '</a></td>
@@ -157,10 +207,12 @@ function getUserData($callsign) {
                          echo '<a href="#" class="tip"><img src="./img/flags/' . $Flag . '.png" height="15" alt="' . $Name . '" /><span>' . $Name . '</span></a>';
                      }
                      echo '</td>
-                    <td width="170" align="center">' . @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime()) . '</td>
+                    <td width="170" align="center">' . ($rowIsTx
+                        ? '<span class="tx-timer" data-since="' . $txSince . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
+                        : @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime())) . '</td>
                     <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
                     <td align="center" width="30" valign="middle">';
-                      if ($isTx) {
+                      if ($rowIsTx) {
                           echo '<img src="./img/tx.gif" style="margin-top:3px;" height="20"/>';
                       } else {
                           echo ($Reflector->Stations[$i]->GetModule());
@@ -209,3 +261,54 @@ function getUserData($callsign) {
    }
    ?>
 </table>
+
+<script>
+(function() {
+    var txSince    = <?php echo json_encode($isTx ? $txSince : null); ?>;
+    var txCallsign = <?php echo json_encode($isTx ? $txCallsign : ''); ?>;
+
+    function formatTx(since) {
+        var elapsed = Math.floor(Date.now() / 1000) - since;
+        var m = Math.floor(elapsed / 60);
+        var s = elapsed % 60;
+        return 'TXing ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + 's';
+    }
+
+    function updateTabTitle(txStr) {
+        // Read station count directly from the menubar (same source as updateTitle)
+        var connected = document.querySelector('#menubar a[href*="repeaters"]');
+        var countMatch = connected ? connected.textContent.match(/\((\d+)\)/) : null;
+        var stations = countMatch ? '(' + countMatch[1] + ')' : '';
+        var base = '<?php echo addslashes($PageOptions['CustomTXT']); ?>';
+        if (txStr && txCallsign) {
+            document.title = stations + ' ' + txCallsign + ' ' + txStr + '...';
+        } else {
+            document.title = stations ? stations + ' ' + base : base;
+        }
+    }
+
+    function tick() {
+        if (txSince) {
+            var txStr = formatTx(txSince);
+            document.querySelectorAll('.tx-timer').forEach(function(el) {
+                el.textContent = txStr;
+            });
+            updateTabTitle(txStr);
+        } else {
+            updateTabTitle(null);
+        }
+    }
+
+    // Clear any previous interval left by AJAX reload
+    if (window.txTimerInterval) {
+        clearInterval(window.txTimerInterval);
+        window.txTimerInterval = null;
+    }
+
+    // Signal to updateTitle() whether TX is active
+    window.txActive = !!txSince;
+
+    tick();
+    window.txTimerInterval = setInterval(tick, 1000);
+})();
+</script>
