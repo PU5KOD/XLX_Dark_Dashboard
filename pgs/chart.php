@@ -36,11 +36,11 @@ $modules = array_keys($modules);
 
 // Paleta otimizada para daltônismo (alto contraste, distinção por forma e brilho)
 $colors = [
-    'A' => '#0077BB', // azul
-    'B' => '#EE7733', // laranja
+    'A' => '#EE3377', // magenta
+    'B' => '#BBBBBB', // cinza claro
     'C' => '#009988', // teal
-    'D' => '#EE3377', // magenta
-    'E' => '#BBBBBB', // cinza claro
+    'D' => '#0077BB', // azuk
+    'E' => '#EE7733', // laranja
     'F' => '#FFDD00', // amarelo
     'G' => '#AA3377', // roxo-avermelhado
     'H' => '#44BB99', // verde-água
