@@ -1,3 +1,17 @@
+/* Transmissão ativa */
+@keyframes txPulse {
+    0%   { background-color: #4a2000; }
+    50%  { background-color: #8b3a00; }
+    100% { background-color: #4a2000; }
+}
+tr.tx-active {
+    animation: txPulse 1.2s ease-in-out infinite;
+}
+tr.tx-active td {
+    color: #ffcc88 !important;
+    font-weight: bold;
+}
+
 body { /* Page base control */
    margin               : 0px;
    padding              : 0px;
@@ -60,20 +74,24 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
 }
 #menubar { /* Menu Buttons Background Bar */
    height               : 40px;
-   width                : 100%;
+   width                : 90%;
+   max-width            : 1200px;
    display              : flex;
    justify-content      : center;
    text-align           : center;
    position             : absolute;
-   left                 : 0px;
+   left                 : 50%;
+   transform            : translateX(-50%);
    top                  : 115px;
    min-width            : 760px;
    background-image     : linear-gradient(to bottom, #333333 10%, #111111 90%); /* Menu bar gradient */
 }
 #content {
-   width                : 100%;
+   width                : 90%;
+   max-width            : 1200px;
    position             : absolute;
-   left                 : 0px;
+   left                 : 50%;
+   transform            : translateX(-50%);
    top                  : 175px;
    color                : #c3dcba; /* Light Green */
 }
@@ -202,23 +220,28 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
         min-width        : 100%;
     }
     #menubar {
-        height           : 60px;
+        height           : auto;
         top              : 80px;
         min-width        : 100%;
+        overflow-x       : auto;
+        white-space      : nowrap;
+        padding          : 5px 0;
     }
     #menu {
         float            : none;
         height           : auto;
+        display          : inline-block;
     }
     #menu td {
-        display          : block;
-        margin           : 5px 0;
+        display          : inline-block;
+        margin           : 3px 2px;
     }
     .menulink, .menulinkactive {
-        font-size        : 12pt;
+        font-size        : 11pt;
         margin-left      : 0;
-        display          : block;
+        display          : inline-block;
         text-align       : center;
+        white-space      : nowrap;
     }
     #content {
         top              : 150px;
