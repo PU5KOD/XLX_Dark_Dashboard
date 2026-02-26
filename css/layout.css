@@ -75,7 +75,7 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
 #menubar { /* Menu Buttons Background Bar */
    height               : 40px;
    width                : 90%;
-   max-width            : 1200px;
+   max-width            : 1920px;
    display              : flex;
    justify-content      : center;
    text-align           : center;
@@ -88,7 +88,7 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
 }
 #content {
    width                : 90%;
-   max-width            : 1200px;
+   max-width            : 1920px;
    position             : absolute;
    left                 : 50%;
    transform            : translateX(-50%);
