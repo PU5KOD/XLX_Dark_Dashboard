@@ -159,7 +159,7 @@ function getUserData($callsign) {
                 <th>Gateway</th>
                 <th>Operator</th>
                 <th>Origin</th>
-                <th>Country</th>
+                <th>Ctry</th>
                 <th>Last Activity</th>
                 <th>DPRS</th>
                 <th align="center" valign="middle"><img src="./img/speaker.png" alt="Listening on" style="width: 18px;"/></th>
