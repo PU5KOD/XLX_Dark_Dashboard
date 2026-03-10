@@ -241,14 +241,14 @@ function getUserData($callsign) {
                     <td width="170" align="center">' . ($rowIsTx
                         ? '<span class="tx-timer" data-since="' . $rowSince . '" style="color:#ffaa44;font-weight:bold;">TXing 00:00s</span>'
                         : @date("d/m/Y, H:i:s", $Reflector->Stations[$i]->GetLastHeardTime())) . '</td>
-                    <td width="40" align="center" valign="middle"><a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a></td>
-                    <td align="center" width="30" valign="middle">';
+                    <td width="40" align="center" valign="middle">';
                       if ($rowIsTx) {
                           echo '<img src="./img/tx.gif" style="margin-top:3px;" height="20"/>';
                       } else {
-                          echo ($Reflector->Stations[$i]->GetModule());
+                          echo '<a href="http://www.aprs.fi/' . $Reflector->Stations[$i]->GetCallsignOnly() . '" class="pl" title="Click here to check the location of the device" target="_blank"><img src="./img/satellite.png" style="width: 40%;"/></a>';
                       }
                       echo '</td>
+                    <td align="center" width="30" valign="middle">' . $Reflector->Stations[$i]->GetModule() . '</td>
                  </tr>';
                  }
                  if ($i == $PageOptions['LastHeardPage']['LimitTo']) { $i = $Reflector->StationCount() + 1; }
