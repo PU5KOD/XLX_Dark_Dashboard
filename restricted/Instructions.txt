@@ -20,20 +20,20 @@ sudo systemctl reload apache2.service
 
 <?php
 session_start();
-$usuarios_pendentes = "/var/www/restricted/pendentes.txt";
+$pending_users = "/var/www/restricted/pendentes.txt";
 
-// Verifica se o servidor passou a variável de autenticação
+// Checks if the server passed the authentication variable.
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
     header('WWW-Authenticate: Basic realm="Restricted"');
     header('HTTP/1.0 401 Unauthorized');
-    echo "Acesso negado!";
+    echo "Access denied!";
     exit;
 }
-$usuario = $_SERVER['PHP_AUTH_USER'];
+$cert_user = $_SERVER['PHP_AUTH_USER'];
 
-// Verifica se o usuário está na lista de troca de senha
-$usuarios_pendentes_lista = file($usuarios_pendentes, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-if (in_array($usuario, $usuarios_pendentes_lista)) {
-    header("Location: /trocar_senha.php");
+// Checks if the user is on the password change list.
+$pending_users_list = file($pending_users, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (in_array($cert_user, $pending_users_list)) {
+    header("Location: /change_password.php");
     exit;
 }
