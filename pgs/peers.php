@@ -20,7 +20,7 @@ fclose($Result);
 <table class="listingtable">
  <tr>
    <th width="40">#</th>
-   <th width="80">Reflector</th>
+   <th width="80">Link with</th>
    <th width="170">Start of Activity</th>
    <th width="130">Duration</th>
    <th width="100">Protocol</th>
