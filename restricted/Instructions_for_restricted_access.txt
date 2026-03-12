@@ -1,4 +1,22 @@
-To restrict access to the site only to users registered in .htpasswd, move the "restricted" directory two levels up, inside "www". next to "http", add the following text to the beginning of index.php, right after <?php as shown below.
+To restrict access to the site only to users registered in .htpasswd, follow the changes below:
+
+1. On terminal, type:
+sudo nano /etc/apache2/apache2.conf
+
+2. Find the corresponding section in the file and add the following:
+
+<Directory /var/www/html/xlxd/>
+    AllowOverride All
+</Directory>
+
+<Directory /var/www/html/keys/>
+    AllowOverride All
+</Directory>
+
+3. At the end, reload the service:
+sudo systemctl reload apache2.service
+
+4. Move the "restricted" directory two levels up, inside "www". next to "http", add the following text to the beginning of index.php, right after <?php as shown below:
 
 <?php
 session_start();
