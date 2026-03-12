@@ -917,7 +917,7 @@ menu_database() {
 menu_access() {
     while true; do
         header "ACCESS CONTROL"
-        printf "  ${BYELLOW}1)${RST} Add user        ${DIM}(whitelist + dashboard)${RST}\n"
+        printf "  ${BYELLOW}1)${RST} Add user         ${DIM}(whitelist + dashboard)${RST}\n"
         printf "  ${BYELLOW}2)${RST} Reset password   ${DIM}(dashboard)${RST}\n"
         printf "  ${BYELLOW}3)${RST} Remove user      ${DIM}(whitelist + dashboard)${RST}\n"
         printf "  ${BYELLOW}4)${RST} Look up user     ${DIM}(whitelist + dashboard)${RST}\n"
