@@ -103,7 +103,7 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
 #menubar { /* Menu Buttons Background Bar | Desktop */
    height               : 40px;
    width                : 100%;
-   max-width            : 1280px;
+   max-width            : 1920px;
    display              : flex;
    justify-content      : center;
    text-align           : center;
@@ -111,7 +111,7 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
    left                 : 50%;
    transform            : translateX(-50%);
    top                  : 115px;
-   min-width            : 760px;
+   min-width            : 1080px;
    background-image     : linear-gradient(to bottom, var(--bg-menubar-from) 10%, var(--bg-menubar-to) 90%);
 }
 #content { /* Smartphone */
