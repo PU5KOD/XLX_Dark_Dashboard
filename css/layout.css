@@ -103,7 +103,7 @@ a.tip:hover span { /* frame with the name of the country when you hover the mous
 #menubar { /* Menu Buttons Background Bar | Desktop */
    height               : 40px;
    width                : 100%;
-   max-width            : 1920px;
+   max-width            : 1280px;
    display              : flex;
    justify-content      : center;
    text-align           : center;
