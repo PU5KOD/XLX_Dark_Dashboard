@@ -69,3 +69,36 @@ In addition to the standard information, the following improvements were made:
 - **jQuery 3.7.1** — loaded via CDN, used for AJAX page refresh
 - **SQLite3** — local database for operator name and city lookup
 - **PHP** — server-side log parsing and data rendering
+
+---
+
+## 👥 User Manager
+
+The dashboard access (`.htpasswd` authentication) is managed by `reflector_user_manager.sh`, a unified terminal tool included with the [XLX Installer](https://github.com/PU5KOD/XLX_Installer). It handles the full user lifecycle from a single interactive menu — no need to run separate scripts.
+
+**Location:** `/xlxd/users_db/reflector_user_manager.sh`
+
+```bash
+sudo /xlxd/users_db/reflector_user_manager.sh
+```
+
+### Access Control features
+
+| Option | Description |
+|--------|-------------|
+| **Add user** | Adds the callsign to the reflector whitelist and/or creates dashboard credentials, generating a secure 12-character initial password |
+| **Reset password** | Generates a new password for an existing dashboard user and flags them as pending |
+| **Remove user** | Independently removes the user from the dashboard and/or the whitelist |
+| **Look up user** | Shows the current status across whitelist, dashboard access and pending list |
+| **List pending** | Lists users who received an initial or reset password but have not yet changed it |
+| **List whitelist** | Displays all active whitelist entries sorted alphabetically in auto-sized columns |
+
+### RadioID database management
+
+The tool also manages the `users_base.csv` database that feeds the dashboard's operator name and city lookup:
+
+- Add, edit and delete records with pre-filled field editing
+- Search across 300 000+ entries by callsign, DMRID, name, city or country with paginated results
+- Trigger the PHP script that rebuilds the SQLite database from the CSV after bulk changes
+
+> For full documentation see [REFLECTOR_USER_MANAGER.md](REFLECTOR_USER_MANAGER.md).
