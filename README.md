@@ -159,7 +159,7 @@ Complete list of all project files organized by directory. Files marked with ✏
 | `liveircddb.php` ✨ | **Live ircddb** tab — embeds the live ircddb network activity page via iframe, served through the local proxy to avoid browser content restrictions |
 | `ircddb_proxy.php` ✨ | Transparent HTTP proxy for `live.ircddb.net` — fetches and rewrites the ircddb live page server-side to avoid CSP and mixed-content browser restrictions when embedded via `liveircddb.php` |
 
-**OOP data model** (unchanged from original)
+**OOP data model**
 
 | File | Role |
 |---|---|
