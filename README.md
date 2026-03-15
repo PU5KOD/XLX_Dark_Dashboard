@@ -54,24 +54,93 @@ In addition to the standard information, the following improvements were made:
 
 Complete list of all project files organized by directory. Files marked with ✏️ were modified from the original XLX dashboard; ✨ marks files added by this fork.
 
+```
+/var/www/
+├── restricted/                         ← Protected credentials area
+│   ├── .htpasswd                        Hashed user credentials
+│   └── pendentes.txt                    Pending first-login password list
+│
+└── html/
+    └── xlxd/                           ← Main dashboard root
+        ├── index.php ✏️                  Main dashboard controller
+        ├── change_password.php ✨        Forced first-login password change
+        │
+        ├── css/
+        │   └── layout.css ✏️            Dark theme stylesheet
+        │
+        ├── img/                         Images and icons displayed on the site
+        │
+        ├── log/                        ← Log viewer (restricted access)
+        │   ├── index.php ✨              XLX Log Viewer (real-time)
+        │   ├── fetch_log.php ✨          Log streaming AJAX endpoint
+        │   └── export_log.php ✨         Log download endpoint
+        │
+        └── pgs/                        ← Tab pages, classes and utilities
+            ├── config.inc.php           Central configuration
+            ├── functions.php            Shared utility library
+            ├── country.csv              Country/prefix reference data
+            ├── users.php ✏️              Recent Activity tab
+            ├── repeaters.php ✏️          Connected Stations tab
+            ├── modules.php ✏️            Active Modules tab + chart embed
+            ├── chart.php ✨              Module activity chart (AJAX endpoint)
+            ├── peers.php ✏️              Peers tab
+            ├── reflectors.php           Reflectors tab (global XLX list)
+            ├── traffic.php ✏️            Traffic tab (VNStat bandwidth)
+            ├── liveccs.php              Live CCS tab (iframe embed)
+            ├── liveircddb.php ✨         Live ircddb tab (iframe embed)
+            ├── ircddb_proxy.php ✨       Transparent proxy for live.ircddb.net
+            ├── class.reflector.php      xReflector — top-level data model
+            ├── class.node.php           Node — connected station object
+            ├── class.station.php        Station — recent activity entry
+            ├── class.peer.php           Peer — peer reflector object
+            ├── class.interlink.php      Interlink — direct interlink object
+            └── class.parsexml.php       ParseXML — XML decoder utility
+```
+
 ---
 
-### `/var/www/html/xlxd/` — Main dashboard
+### `/var/www/html/xlxd/` — Main dashboard root
 
 | File | Role |
 |---|---|
 | `index.php` ✏️ | Main dashboard controller — bootstraps the page, loads all tab includes, manages the AJAX auto-refresh cycle, handles session state, filter-aware refresh logic and browser tab title updates |
-| `css/layout.css` ✏️ | Core stylesheet — dark theme colors, page layout, responsive breakpoints for desktop and mobile, TX row pulse animation and all UI component styles |
+| `change_password.php` ✨ | First-login password change page — intercepts users listed in `pendentes.txt` after authentication and requires them to set a new password meeting strength requirements (min. 8 chars, upper/lowercase, digit, special char) before proceeding; updates `.htpasswd` and removes the user from `pendentes.txt` on success |
+
+---
+
+### `/var/www/html/xlxd/css/` — Stylesheet
+
+| File | Role |
+|---|---|
+| `layout.css` ✏️ | Core stylesheet — dark theme colors, page layout, responsive breakpoints for desktop and mobile, TX row pulse animation and all UI component styles |
+
+---
+
+### `/var/www/html/xlxd/img/` — Static assets
+
+| File | Role |
+|---|---|
+| *(images and icons)* | All images and icons displayed across the dashboard pages |
+
+---
+
+### `/var/www/html/xlxd/log/` — Log viewer
+
+| File | Role |
+|---|---|
+| `index.php` ✨ | **XLX Log Viewer** — password-protected real-time viewer for `/var/log/xlx.log` with text filtering, colour-coded log levels (ERROR/WARNING), adjustable refresh interval, log clearing and CSRF protection |
+| `fetch_log.php` ✨ | Log streaming AJAX endpoint — reads the last lines of `/var/log/xlx.log` server-side and returns them to the log viewer; session-gated to prevent unauthenticated access |
+| `export_log.php` ✨ | Log export endpoint — serves the current log content as a downloadable text file; CSRF-token validated |
 
 ---
 
 ### `/var/www/html/xlxd/pgs/` — Tab pages, classes and utilities
 
-**Configuration**
+**Configuration and shared utilities**
 
 | File | Role |
 |---|---|
-| `config_inc.php` | Central configuration — reflector identity, sysop callsign, contact email, country, custom header text, footnote, dashboard version, page refresh settings, VNStat interface, visible/hidden tab flags and other runtime options |
+| `config.inc.php` | Central configuration — reflector identity, sysop callsign, contact email, country, custom header text, footnote, dashboard version, page refresh settings, VNStat interface, visible/hidden tab flags and other runtime options |
 | `functions.php` | Shared utility library — system uptime, time parsing, seconds formatting, VNStat data retrieval and traffic value formatting used across multiple tabs |
 | `country.csv` | Country reference data — maps country names to ISO codes and amateur radio prefixes; used for flag display and country lookups across the dashboard |
 
@@ -85,45 +154,30 @@ Complete list of all project files organized by directory. Files marked with ✏
 | `chart.php` ✨ | **Module Activity Chart** — server-side AJAX endpoint that parses `/var/log/xlx.log` and returns Chart.js stacked bar data for the last 24 hours of transmissions per module; uses a colorblind-safe palette and refreshes independently every 60 seconds |
 | `peers.php` ✏️ | **Peers** tab — lists reflectors currently interlinked with this node, fetched in real time from the XLX server's reflector list endpoint |
 | `reflectors.php` | **Reflectors** tab — displays the global list of registered XLX reflectors retrieved from the central calling-home server |
-| `traffic.php` ✏️ | **Traffic** tab — shows server bandwidth usage (inbound, outbound and total) by day and month, parsed from VNStat; also embeds the live ircddb network activity page via the local proxy |
+| `traffic.php` ✏️ | **Traffic** tab — shows server bandwidth usage (inbound, outbound and total) by day and month, parsed from VNStat; embeds the live ircddb network activity page via the local proxy |
 | `liveccs.php` | **Live CCS** tab — embeds the live CCS activity page from `ccs001.xreflector.net` via iframe for real-time cross-mode connection monitoring |
-| `ircddb_proxy.php` ✨ | Transparent HTTP proxy for `live.ircddb.net` — fetches and rewrites the ircddb live page server-side to avoid CSP and mixed-content browser restrictions when embedded in the dashboard |
+| `liveircddb.php` ✨ | **Live ircddb** tab — embeds the live ircddb network activity page via iframe, served through the local proxy to avoid browser content restrictions |
+| `ircddb_proxy.php` ✨ | Transparent HTTP proxy for `live.ircddb.net` — fetches and rewrites the ircddb live page server-side to avoid CSP and mixed-content browser restrictions when embedded via `liveircddb.php` |
 
 **OOP data model** (unchanged from original)
 
 | File | Role |
 |---|---|
-| `class_reflector.php` | `xReflector` class — top-level reflector object; holds collections of nodes, peers and interlinks and exposes query methods used by all tab pages |
-| `class_node.php` | `Node` class — represents a single connected station with callsign, module, protocol, connection time and related metadata |
-| `class_station.php` | `Station` class — represents a station entry in the recent activity list with transmission details |
-| `class_peer.php` | `Peer` class — represents a peer reflector in the interlink or peers list with its identification and status fields |
-| `class_interlink.php` | `Interlink` class — represents a direct interlink connection between reflectors, distinct from a regular peer |
-| `class_parsexml.php` | `ParseXML` class — XML parser utility used to decode the data returned by the XLX server's calling-home and reflector list endpoints |
+| `class.reflector.php` | `xReflector` class — top-level reflector object; holds collections of nodes, peers and interlinks and exposes query methods used by all tab pages |
+| `class.node.php` | `Node` class — represents a single connected station with callsign, module, protocol, connection time and related metadata |
+| `class.station.php` | `Station` class — represents a station entry in the recent activity list with transmission details |
+| `class.peer.php` | `Peer` class — represents a peer reflector in the interlink or peers list with its identification and status fields |
+| `class.interlink.php` | `Interlink` class — represents a direct interlink connection between reflectors, distinct from a regular peer |
+| `class.parsexml.php` | `ParseXML` class — XML parser utility used to decode the data returned by the XLX server's calling-home and reflector list endpoints |
 
 ---
 
-### `/var/www/restricted/` — Password-protected area
+### `/var/www/restricted/` — Protected credentials area
 
 | File | Role |
 |---|---|
-| `.htaccess` | Apache directory protection — enables HTTP Basic Auth using the credentials stored in `.htpasswd`; all files in this directory require a valid login |
-| `.htpasswd` | User credentials file — stores bcrypt-hashed passwords for all dashboard users; managed by `reflector_user_manager.sh` |
-| `pendentes.txt` | Pending password list — one callsign per line; users present here are intercepted by `change_password.php` and forced to set a new password before accessing the dashboard |
-| `index.php` ✨ | **XLX Log Viewer** — password-protected real-time viewer for `/var/log/xlx.log` with text filtering, colour-coded log levels (ERROR/WARNING), adjustable refresh interval, log clearing and CSRF protection |
-| `fetch_log.php` ✨ | Log streaming AJAX endpoint — reads the last lines of `/var/log/xlx.log` server-side and returns them to the log viewer; session-gated to prevent unauthenticated access |
-| `export_log.php` ✨ | Log export endpoint — serves the current log content as a downloadable text file; CSRF-token validated |
-| `change_password.php` ✨ | First-login password change page — intercepts users listed in `pendentes.txt` after authentication and requires them to set a new password meeting strength requirements (min. 8 chars, upper/lowercase, digit, special char) before proceeding; updates `.htpasswd` and removes the user from `pendentes.txt` on success |
-
----
-
-### `/xlxd/users_db/` — RadioID database and user management
-
-| File | Role |
-|---|---|
-| `users_base.csv` | RadioID source database — CSV file with DMRID, callsign, first name, last name, city, state and country for all registered operators; used as the source of truth for the SQLite rebuild |
-| `create_user_db.php` | Database conversion script — reads `users_base.csv` and rebuilds `xlxd.db`; triggered manually or via the User Manager after bulk CSV edits |
-| `xlxd.db` | SQLite operator database — compiled lookup database consumed by `users.php` and `repeaters.php` to display operator name and city alongside callsigns in the dashboard |
-| `reflector_user_manager.sh` ✨ | **User Manager** — unified interactive terminal tool for managing whitelist entries, dashboard credentials and the RadioID CSV database (see [User Manager](#-user-manager)) |
+| `.htpasswd` | User credentials file — stores hashed passwords for all dashboard users; managed by `reflector_user_manager.sh` |
+| `pendentes.txt` | Pending password list — one callsign per line; users present here are redirected to `change_password.php` and required to set a new password before accessing the dashboard |
 
 ---
 
