@@ -50,16 +50,45 @@ In addition to the standard information, the following improvements were made:
 
 ---
 
-## File Structure (modified files)
+## File Structure
 
-| File | Description |
+Complete list of dashboard files and their roles. Files marked with ✏️ were modified from the original; ✨ marks files added by this fork.
+
+### Root
+
+| File | Role |
 |---|---|
-| `index.php` | Main page controller — AJAX reload, tab title, session, filter-aware refresh |
-| `css/layout.css` | Dark theme styles, TX pulse animation, responsive layout |
-| `pgs/users.php` | Recent Activity tab — TX detection, live timers, tab title, filters |
-| `pgs/repeaters.php` | Connected Stations tab — live duration counter |
-| `pgs/modules.php` | Active Modules tab — includes the activity chart |
-| `pgs/chart.php` | Module activity chart — log parsing, Chart.js rendering, AJAX endpoint |
+| `index.php` ✏️ | Main page controller — loads tabs, manages AJAX auto-refresh cycle, handles session, filter-aware refresh logic and browser tab title updates |
+| `.htaccess` | Apache access control — restricts dashboard access to authenticated users via `.htpasswd` |
+| `favicon.ico` | Browser tab icon |
+
+### css/
+
+| File | Role |
+|---|---|
+| `css/layout.css` ✏️ | Core stylesheet — dark theme colors, page layout, responsive breakpoints, TX row pulse animation and all UI component styles |
+
+### pgs/
+
+| File | Role |
+|---|---|
+| `pgs/config.inc.php` | Central configuration file — reflector identity, callsign, country, custom tab name, footnote, visible/hidden tab flags and other runtime settings |
+| `pgs/users.php` ✏️ | **Recent Activity** tab — displays last transmissions; includes live TX detection from `/var/log/xlx.log`, live TX timer, row highlight animation, callsign/module filters and browser tab TX indicator |
+| `pgs/repeaters.php` ✏️ | **Connected Stations** tab — lists nodes currently linked to the reflector with live connection duration counters updating every second |
+| `pgs/modules.php` ✏️ | **Active Modules** tab — shows module status table and embeds the activity chart; excluded from the main auto-refresh cycle |
+| `pgs/chart.php` ✨ | **Module Activity Chart** — server-side AJAX endpoint that parses `/var/log/xlx.log` and returns Chart.js data for the 24-hour transmission history chart; refreshes independently every 60 seconds |
+| `pgs/links.php` ✏️ | **Links** tab — displays interlinked reflectors; supports the same hide flag as Network and Traffic tabs via `config.inc.php` |
+| `pgs/network.php` ✏️ | **Network** tab — redesigned view showing node details and a 30-day date history in a more readable format |
+| `pgs/traffic.php` ✏️ | **Traffic** tab — shows traffic statistics for both the legacy ircddb network and the main QuadNet network |
+
+### users_db/
+
+| File | Role |
+|---|---|
+| `users_db/users_base.csv` | RadioID database — CSV source file with DMRID, callsign, name, city, state and country for all registered operators |
+| `users_db/create_user_db.php` | Conversion script — reads `users_base.csv` and rebuilds the SQLite database used by the dashboard for operator name and city lookups |
+| `users_db/xlxd.db` | SQLite database — compiled operator lookup database consumed by `users.php` and `repeaters.php` to display name and city alongside callsigns |
+| `users_db/reflector_user_manager.sh` | User Manager — interactive terminal tool for managing whitelist entries, dashboard credentials and the RadioID database (see [User Manager](#-user-manager)) |
 
 ---
 
@@ -101,4 +130,4 @@ The tool also manages the `users_base.csv` database that feeds the dashboard's o
 - Search across 300 000+ entries by callsign, DMRID, name, city or country with paginated results
 - Trigger the PHP script that rebuilds the SQLite database from the CSV after bulk changes
 
-> For full documentation see [REFLECTOR_USER_MANAGER.md](users_db/REFLECTOR_USER_MANAGER.md).
+> For full documentation see [REFLECTOR_USER_MANAGER.md](REFLECTOR_USER_MANAGER.md).
