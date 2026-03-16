@@ -53,11 +53,11 @@ setup_width() {
 
     # Separator line length (COLS - 2 indent spaces)
     local sep_len=$(( COLS - 2 ))
-    SEP_LINE=$(printf '%*s' "$sep_len" '' | tr ' ' '═')
+    SEP_LINE=$(printf '%*s' "$sep_len" '' | sed 's/ /═/g')
 
     # Horizontal bar inside the record box (between ┌ and ┐): COLS - 4
     local box_bar=$(( COLS - 4 ))
-    BOX_BAR=$(printf '%*s' "$box_bar" '' | tr ' ' '─')
+    BOX_BAR=$(printf '%*s' "$box_bar" '' | sed 's/ /─/g')
 
     # Value width inside the record box:
     # layout: "  │ " + LBL(10) + " " + VAL + " │"
@@ -946,7 +946,7 @@ main_menu() {
         clear
         local title="XLX USER MANAGEMENT"
         local tlen=${#title}
-        local bar; bar=$(printf '%*s' "$BANNER_IN" '' | tr ' ' '═')
+        local bar; bar=$(printf '%*s' "$BANNER_IN" '' | sed 's/ /═/g')
         local lpad=$(( (BANNER_IN - tlen) / 2 ))
         local rpad=$(( BANNER_IN - tlen - lpad ))
         (( lpad < 0 )) && lpad=0
