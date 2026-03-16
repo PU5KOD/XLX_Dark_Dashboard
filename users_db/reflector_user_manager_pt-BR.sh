@@ -53,11 +53,11 @@ setup_width() {
 
     # Comprimento da linha de separador (COLS - 2 espaços de recuo)
     local sep_len=$(( COLS - 2 ))
-    SEP_LINE=$(printf '%*s' "$sep_len" '' | tr ' ' '═')
+    SEP_LINE=$(printf '%*s' "$sep_len" '' | sed 's/ /═/g')
 
     # Barra horizontal da caixa (entre ┌ e ┐): COLS - 4
     local box_bar=$(( COLS - 4 ))
-    BOX_BAR=$(printf '%*s' "$box_bar" '' | tr ' ' '─')
+    BOX_BAR=$(printf '%*s' "$box_bar" '' | sed 's/ /─/g')
 
     # Largura do valor dentro da caixa:
     # layout: "  │ " + LBL(10) + " " + VAL + " │"
@@ -946,7 +946,7 @@ menu_principal() {
         clear
         local titulo="GERENCIAMENTO DE USUARIOS XLX"
         local tlen=${#titulo}
-        local bar; bar=$(printf '%*s' "$BANNER_IN" '' | tr ' ' '═')
+        local bar; bar=$(printf '%*s' "$BANNER_IN" '' | sed 's/ /═/g')
         local lpad=$(( (BANNER_IN - tlen) / 2 ))
         local rpad=$(( BANNER_IN - tlen - lpad ))
         (( lpad < 0 )) && lpad=0
