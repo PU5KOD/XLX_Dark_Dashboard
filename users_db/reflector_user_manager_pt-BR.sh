@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Sistema unificado de gerenciamento de usuários do Refletor
+# Sistema unificado de gerenciamento de usuários do Refletor XLX
 # Funções: base de dados (RadioID) | whitelist | acesso (htpasswd) | senhas
 #
 # Coringas disponíveis em campos de entrada:
