@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# gerenciar_refletor.sh — Sistema unificado de gerenciamento do Refletor
+# Sistema unificado de gerenciamento de usuários do Refletor
 # Funções: base de dados (RadioID) | whitelist | acesso (htpasswd) | senhas
 #
 # Coringas disponíveis em campos de entrada:
