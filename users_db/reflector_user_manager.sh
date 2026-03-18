@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# reflector_user_manager.sh — Unified XLX Reflector management tool
+# Unified XLX Reflector users management tool
 # Features: RadioID database | whitelist | dashboard access (htpasswd) | passwords
 #
 # Input wildcards available in entry fields:
